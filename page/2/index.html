@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vince Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Vince Blog">
+<meta property="og:url" content="http://uetty.github.io/page/2/index.html">
+<meta property="og:site_name" content="Vince Blog">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vince Blog">
+  
+    <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Vince Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="uetty.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-rabbitmq" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/22/rabbitmq/" class="article-date">
+  <time datetime="2019-04-22T09:01:43.000Z" itemprop="datePublished">2019-04-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/04/22/rabbitmq/">RabbitMQ快速入门手册</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><p>使用docker方式，拉取镜像uetty/rabbitmq</p>
+<p>具体Dockerfile的命令 -&gt; <a href="https://github.com/Uetty/dockerfile/blob/master/docker-rabbitmq/Dockerfile" target="_blank" rel="noopener">Dockerfile</a></p>
+<p>额外的TIP: 由于Linux机器上会有最大打开文件个数限制，Rabbitmq又依赖文件操作，所以应将Linux的所有用户打开文件限制调高到64000，Rabbitmq程序所属的用户的打开文件限制调高到64000，这一块见官网（<a href="https://www.rabbitmq.com/install-debian.html#kernel-resource-limits" target="_blank" rel="noopener">文件限制</a>）</p>
+<h2 id="2-虚拟主机"><a href="#2-虚拟主机" class="headerlink" title="2. 虚拟主机"></a>2. 虚拟主机</h2><p>Rabbitmq是多租户系统，存在虚拟主机（把它想象成为数据库）的概念，用户对它的连接、队列、绑定、路由等操作是基于虚拟主机上的。通过<code>rabbitmqctl add_vhost vhostname</code>命令来增加虚拟主机，<code>rabbitmqctl delete_vhost vhostname</code>命令来删除虚拟主机，<code>rabbitmqctl list_vhosts [name tracing]</code>命令来显示虚拟主机列表。</p>
+<p>设置虚拟主机并发客户端总数：<code>rabbitmqctl set_vhost_limits -p test &#39;{&quot;max-connections&quot;: 256}&#39;</code></p>
+<p>设置虚拟主机最大队列数：<code>rabbitmqctl set_vhost_limits -p test &#39;{&quot;max-queues&quot;: 1024}&#39;</code></p>
+<p>显示虚拟主机参数：<code>rabbitmqctl list_vhost_limits -p test</code></p>
+<h2 id="3-启动与用户操作及权限"><a href="#3-启动与用户操作及权限" class="headerlink" title="3. 启动与用户操作及权限"></a>3. 启动与用户操作及权限</h2><p>启动命令：<code>service rabbitmq-server start</code>  </p>
+<p>Rabbit提供了用户名密码的方式认证和X509证书的方式认证，，这里只记用户名密码的方式 </p>
+<p>初始用户：刚创建的实例，有默认的用户guest密码guest，但只能在本机登陆（不鼓励将其配置成能远程登陆，其他用户默认是可以远程访问的） </p>
+<h3 id="用户设置（官网地址-）"><a href="#用户设置（官网地址-）" class="headerlink" title="用户设置（官网地址 ）"></a>用户设置（<a href="https://www.rabbitmq.com/rabbitmqctl.8.html#User_Management" target="_blank" rel="noopener">官网地址</a> ）</h3><p>添加用户：<code>rabbitmqctl add_user janeway changeit</code> </p>
+<p>删除用户：<code>rabbitmqctl delete_user janeway</code> </p>
+<p>变更密码：<code>rabbitmqctl change_password janeway newpass</code> </p>
+<p>验证用户名密码：<code>rabbitmqctl authenticate_user janeway verifyit</code> </p>
+<p>显示用户列表：<code>rabbitmqctl list_users</code> </p>
+<h3 id="用户权限"><a href="#用户权限" class="headerlink" title="用户权限"></a>用户权限</h3><p>设置用户TAG：<code>rabbitmqctl set_user_tags janeway administrator</code> </p>
+<p>删除用户TAG：<code>rabbitmqctl set_user_tags janeway</code> </p>
+<p>TIP: 用户TAG与全局权限绑定（包括登陆可视化管理界面的权限等），具体见官网（<a href="https://www.rabbitmq.com/management.html#permissions" target="_blank" rel="noopener">TAG权限表</a>）</p>
+<table>
+<thead>
+<tr>
+<th align="left">Tag</th>
+<th align="left">Capabilities</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">(None)</td>
+<td align="left">No access to the management plugin</td>
+</tr>
+<tr>
+<td align="left">management</td>
+<td align="left">Anything the user could do via messaging protocols plus:List virtual hosts to which they can log in via AMQPView all queues, exchanges and bindings in “their” virtual hostsView and close their own channels and connectionsView “global” statistics covering all their virtual hosts, including activity by other users within them</td>
+</tr>
+<tr>
+<td align="left">policymaker</td>
+<td align="left">Everything “management” can plus:View, create and delete policies and parameters for virtual hosts to which they can log in via AMQP</td>
+</tr>
+<tr>
+<td align="left">monitoring</td>
+<td align="left">Everything “management” can plus:List all virtual hosts, including ones they could not access using messaging protocolsView other users’s connections and channelsView node-level data such as memory use and clusteringView truly global statistics for all virtual hosts</td>
+</tr>
+<tr>
+<td align="left">administrator</td>
+<td align="left">Everything “policymaker” and “monitoring” can plus:Create and delete virtual hostsView, create and delete usersView, create and delete permissionsClose other users’s connections</td>
+</tr>
+</tbody></table>
+<p>设置用户在虚拟主机上的权限：<code>rabbitmqctl set_permissions -p vhostname username &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;</code> 后面三个参数分别表示配置权限、写权限、读权限，引号内的内容用正则表达式匹配队列键名（不指定[–vhost/-p]参数，默认主机为’/‘ ，下同） </p>
+<p>清除用户在虚拟主机上的权限：<code>rabbitmqctl clear_permissions -p vhostname username</code>  </p>
+<p>显示某个用户在虚拟主机上的权限：<code>rabbitmqctl list_user_permissions uetty</code>  </p>
+<p>显示某个虚拟主机上的用户权限：<code>rabbitmqctl list_permissions -p vhostname</code></p>
+<h2 id="4-端口介绍"><a href="#4-端口介绍" class="headerlink" title="4. 端口介绍"></a>4. 端口介绍</h2><ul>
+<li>4369: <a href="http://erlang.org/doc/man/epmd.html" target="_blank" rel="noopener">epmd</a>, a peer discovery service used by RabbitMQ nodes and CLI tools</li>
+<li>5672, 5671: used by AMQP 0-9-1 and 1.0 clients without and with TLS</li>
+<li>25672: used for inter-node and CLI tools communication (Erlang distribution server port) and is allocated from a dynamic range (limited to a single port by default, computed as AMQP port + 20000). Unless external connections on these ports are really necessary (e.g. the cluster uses <a href="https://www.rabbitmq.com/federation.html" target="_blank" rel="noopener">federation</a> or CLI tools are used on machines outside the subnet), these ports should not be publicly exposed. See <a href="https://www.rabbitmq.com/networking.html" target="_blank" rel="noopener">networking guide</a> for details.</li>
+<li>35672-35682: used by CLI tools (Erlang distribution client ports) for communication with nodes and is allocated from a dynamic range (computed as server distribution port + 10000 through server distribution port + 10010). See <a href="https://www.rabbitmq.com/networking.html" target="_blank" rel="noopener">networking guide</a> for details.</li>
+<li>15672: <a href="https://www.rabbitmq.com/management.html" target="_blank" rel="noopener">HTTP API</a> clients, <a href="https://www.rabbitmq.com/management.html" target="_blank" rel="noopener">management UI</a> and <a href="https://www.rabbitmq.com/management-cli.html" target="_blank" rel="noopener">rabbitmqadmin</a> (only if the <a href="https://www.rabbitmq.com/management.html" target="_blank" rel="noopener">management plugin</a> is enabled)</li>
+<li>61613, 61614: <a href="https://stomp.github.io/stomp-specification-1.2.html" target="_blank" rel="noopener">STOMP clients</a> without and with TLS (only if the <a href="https://www.rabbitmq.com/stomp.html" target="_blank" rel="noopener">STOMP plugin</a> is enabled)</li>
+<li>1883, 8883: (<a href="http://mqtt.org/" target="_blank" rel="noopener">MQTT clients</a> without and with TLS, if the <a href="https://www.rabbitmq.com/mqtt.html" target="_blank" rel="noopener">MQTT plugin</a> is enabled</li>
+<li>15674: STOMP-over-WebSockets clients (only if the <a href="https://www.rabbitmq.com/web-stomp.html" target="_blank" rel="noopener">Web STOMP plugin</a> is enabled)</li>
+<li>15675: MQTT-over-WebSockets clients (only if the <a href="https://www.rabbitmq.com/web-mqtt.html" target="_blank" rel="noopener">Web MQTT plugin</a> is enabled)</li>
+</ul>
+<p>5671端口：AMQP协议使用，且TLS加密</p>
+<p>5672端口：AMQP协议使用，且不加密</p>
+<p>15672端口：HTTP协议使用，或者开启可视化管理页面后，页面地址所在端口</p>
+<p>61613端口：STOMP协议使用，且不加密</p>
+<p>61614端口：STOMP协议使用，且TLS加密</p>
+<p>1883端口：MQTT协议使用，且不加密</p>
+<p>8883端口：MQTT协议使用，且TLS加密</p>
+<p>15674端口：Websocket协议上的STOMP协议使用</p>
+<p>15675端口：Websocket协议上的MQTT协议使用</p>
+<p>TIP:  较常用的是5672端口（一般选择AMQP协议，有加密需求的化是5671端口）和15672端口</p>
+<h2 id="5-交换机、队列与消息的路由"><a href="#5-交换机、队列与消息的路由" class="headerlink" title="5. 交换机、队列与消息的路由"></a>5. 交换机、队列与消息的路由</h2><p>在Rabbitmq中，生产者是将消息推送到交换机里，交换机负责将消息路由到队列中，消费者再从队列中消费消息。这里涉及到了两个概念，<code>交换机</code>和<code>队列</code>，在此基础上引申出了三个操作：<code>交换机的声明</code>、<code>队列的声明</code>、<code>交换机和队列绑定的声明</code>，这三个操作的完成是基于<code>交换机名</code>、<code>队列名</code>、<code>路由键</code>这三个属性的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) 通过channel.exchangeDeclare(&quot;exchangeName&quot;, BuiltinExchangeType.类型);声明交换机</span><br><span class="line">2) 通过String queueName = channel.queueDeclare().getQueue();声明队列，并返回自动生成的队列的名称</span><br><span class="line">   也可以通过channel.queueDeclare(queueName, durable, exclusive, autoDelete, arguments);声明命名的队列</span><br><span class="line">   第二种声明方式的参数解释：durable为是否持久化到磁盘，它将使服务器重启后数据仍然存在；exclusive为是否排他队列，具有基于连接的排他性；autoDelete是否自动删除，在没有订阅者的情况下是否自动删除</span><br><span class="line">3) 通过channel.queueBind(queueName, &quot;exchangeName&quot;, &quot;routingKey&quot;);绑定队列和交换机</span><br></pre></td></tr></table></figure>
+
+<p>TIP:  队列本身还包含了许多属性，例如：名称、交换代理重启后是否仍保存、自动删除、队列长度等参数，在声明队列的时候可以给定。</p>
+<p>交换机种类主要有四种，以下介绍这几种交换机：</p>
+<ol>
+<li>直连交换机(direct)</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在直连交换机的三个声明操作中，交换机名、队列名都是不能为空字符串，路由键可以为空字符串但已被使用。发送到直连交换机的消息直接根据路由键进行完全匹配，将消息路由到所有以该路由键与该交换机绑定的队列中。</span><br><span class="line"></span><br><span class="line">1) 生产者通过channel.basicPublish(&quot;exchangeName&quot;, routingKey, null, message.getBytes(&quot;UTF-8&quot;));提交数据到Rabbitmq</span><br><span class="line"></span><br><span class="line">2) 消费者通过channel.basicConsume(queueName, true, (consumerTag, delivery) -&gt; &#123;&#125;, consumerTag -&gt; &#123; &#125;);从Rabbitmq消费消息</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>扇形交换机(fanout)</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">该交换机的设计思想是一个消息广播，在扇形交换机的三个声明操作中，路由键名可以为空字符串（事实上它会被忽略）。发送到扇形交换机的消息，会被路由到所有绑定在该交换机上的队列中（与直连交换机不同的是不再根据路由键进行筛选）。</span><br><span class="line"></span><br><span class="line">1) 生产者通过channel.basicPublish(&quot;exchangeName&quot;, &quot;&quot;, null, message.getBytes(&quot;UTF-8&quot;));提交数据到Rabbitmq</span><br><span class="line"></span><br><span class="line">2) 消费者通过channel.basicConsume(queueName, true, (consumerTag, delivery) -&gt; &#123;&#125;, consumerTag -&gt; &#123; &#125;);从Rabbitmq消费消息</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>主题交换机(topic)</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在主题交换机的三个声明中，路由键的命名是受限制的，必须由点号分割的多个单词或星号或井号组成，*用于匹配一个单词，井号用于匹配零到多个单词，发送到主题交换机的消息，会根据路由键匹配来路由到队列中。</span><br><span class="line"></span><br><span class="line">1) 生产者通过channel.basicPublish(EXCHANGE_NAME, routingKey, null, message.getBytes(&quot;UTF-8&quot;));发送数据到Rabbitmq</span><br><span class="line"></span><br><span class="line">2) 消费者通过channel.basicConsume(queueName, true, (consumerTag, delivery) -&gt; &#123;&#125;, consumerTag -&gt; &#123; &#125;);从Rabbitmq消费消息</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>首部交换机(match 和 headers)</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">在首部交换机中，路由键名可以是空字符串（事实上它会被忽略），它的路由规则转而由首部属性决定，其中最重要的一个属性是x-match，该属性有两个取值（any/all）,any表示发布消息时携带的键值对有一对能匹配上队列定义的其中一个就能，all表示所有的键值对需完全匹配。另外以x-开头的属性不被视作用于路由匹配的属性。</span><br><span class="line">该模式下，交换机和队列绑定需要增加headers值，可通过如下设置：</span><br><span class="line">Map&lt;String, Object&gt; arguments = new HashMap&lt;String, Object&gt;();</span><br><span class="line">arguments.put(&quot;x-match&quot;, &quot;any&quot;);</span><br><span class="line">arguments.put(&quot;arg1&quot;, &quot;a1&quot;);</span><br><span class="line">arguments.put(&quot;latitude&quot;, 51.5252949);</span><br><span class="line">arguments.put(&quot;dataType&quot;, &quot;json&quot;);</span><br><span class="line">channel.queueBind(queueName, EXCHANGE_NAME, &quot;&quot;, arguments);</span><br><span class="line"></span><br><span class="line">使用：</span><br><span class="line">1) 生产者通过如下代码发送消息到Rabbitmq</span><br><span class="line">Map&lt;String, Object&gt; headers = new HashMap&lt;String, Object&gt;();</span><br><span class="line">headers.put(&quot;latitude&quot;,  51.5252949);</span><br><span class="line">headers.put(&quot;longitude&quot;, -0.0905493);</span><br><span class="line">channel.basicPublish(exchangeName, &quot;&quot;,</span><br><span class="line">             new AMQP.BasicProperties.Builder()</span><br><span class="line">               .headers(headers)</span><br><span class="line">               .build(),</span><br><span class="line">               message.getBytes(&quot;UTF-8&quot;));</span><br><span class="line">               </span><br><span class="line">2) 消费者通过channel.basicConsume(queueName, true, (consumerTag, delivery) -&gt; &#123;&#125;, consumerTag -&gt; &#123; &#125;);从Rabbitmq消费消息</span><br></pre></td></tr></table></figure>
+
+<p>默认交换机规则是一个空字符串路由键的直连交换机定义<a href="https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchange-default" target="_blank" rel="noopener">官网</a>，该交换机的路由键与队列键名相同，这使其看起来像是客户端直接提交消息到了队列中。所有新建的队列都天生绑定了这个默认交换机，它的存在也方便了一些简单需求的应用直接使用Rabbitmq。</p>
+<h2 id="6-ACK、TRANSACTION、RECOVERY和QOS"><a href="#6-ACK、TRANSACTION、RECOVERY和QOS" class="headerlink" title="6. ACK、TRANSACTION、RECOVERY和QOS"></a>6. ACK、TRANSACTION、RECOVERY和QOS</h2><h3 id="ACK、TRANSACTION和RECOVERY"><a href="#ACK、TRANSACTION和RECOVERY" class="headerlink" title="ACK、TRANSACTION和RECOVERY"></a>ACK、TRANSACTION和RECOVERY</h3><p>​        消费者消费队列消息时，过程中可能由于网络原因或业务原因，出现连接断开或者消费者未接收到消息或者消费者不能成功处理消息，这个时候可能会导致数据的丢失。基于这一点，Rabbitmq提供了，TRANSACRION机制、ACK机制和RECOVERY机制。</p>
+<p>​        RECOVERY机制：Rabbitmq JAVA客户端提供连接恢复的功能，在启用该功能时，当客户端由于网络问题断开，会自动恢复客户端，包括恢复连接、恢复连接监听器、重新打开信道及监听器、恢复QOS设置、重新声明交换机、重新声明队列、恢复绑定和消费者，可以通过<code>factory.setAutomaticRecoveryEnabled(true)</code>来打开RECOVERY机制。</p>
+<p>​        ACK机制：Rabbitmq提供了交付确认机制，可以设定自动确认交付和手动确认交付。消费者消费消息时的<code>channel.basicConsume</code>方法，第二个参数<code>autoAck</code>为<code>true</code>时表示自动确认交付，为<code>false</code>时表示手动确认交付。自动确认交付模式下，消费者从队列消费消息时立即确认交付，这时队列中立即完全删除该消息。手动确认交付模式下，客户端需告诉服务端是否确认交付，共有三种交付状态：ACK、NACK、REJECT，当客户端发送ACK时表示客户端处理成功，这时Rabbitmq才会完全删除，ACK的调用为<code>channel.basicAck(deliveryTag, false)</code>。当客户端发送NACK和REJECT时均表示交付失败，区别时NACK能批量操作，REJECT的调用为<code>channel.basicReject(deliveryTag, false)</code>，NACK的调用为<code>channel.basicNack(deliveryTag, true, true)</code>，NACK和REJECT的最后一个参数均表示交付失败的是否重新进入队列，ACK和NACK的第二个参数均表示是否包含所有未回复的交付（即是否批量回复）。</p>
+<p>​        TRANSACTION机制：Rabbitmq在AMQP协议下提供了事务机制，客户端使用<code>channel.txSelect()</code>方法开启事务，使用<code>channel.txCommit()</code>方法提交事务，使用<code>channel.txRollback()</code>方法回滚事务。该机制是重量级的，并且不是必要的，根据官网的说法，它将导致吞吐量降低250倍，因此官方后面添加了也能保证数据不丢失的ACK机制。</p>
+<h3 id="QOS"><a href="#QOS" class="headerlink" title="QOS"></a>QOS</h3><p>默认情况下，消费者一次会尽可能多的消费消息（根据客户端内存），设置QOS可以指定一次最高的消费量，可以使用<code>channel.basicQos(prefetchCount)</code>方法来设置。</p>
+<h2 id="7-可视化界面"><a href="#7-可视化界面" class="headerlink" title="7. 可视化界面"></a>7. 可视化界面</h2><p><code>rabbitmq-plugins enable rabbitmq_management</code>命令用于开启可视化管理界面，之后添加有该权限的用户即可访问15672端口使用 </p>
+<h2 id="8-JAVA访问测试"><a href="#8-JAVA访问测试" class="headerlink" title="8. JAVA访问测试"></a>8. JAVA访问测试</h2><p>POM依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.rabbitmq&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;amqp-client&lt;/artifactId&gt;</span><br><span class="line">	&lt;version&gt;5.6.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="简单HelloWorld"><a href="#简单HelloWorld" class="headerlink" title="简单HelloWorld"></a>简单HelloWorld</h3><p>基于默认交换机，且不设QOS</p>
+<p>生产者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">import com.rabbitmq.client.Channel;</span><br><span class="line">import com.rabbitmq.client.Connection;</span><br><span class="line">import com.rabbitmq.client.ConnectionFactory;</span><br><span class="line">public class Send &#123;</span><br><span class="line">    private final static String QUEUE_NAME = &quot;hello&quot;,</span><br><span class="line">			ROUTING_KEY = QUEUE_NAME;</span><br><span class="line">	private static ConnectionFactory factory;</span><br><span class="line">	private static Connection conn;</span><br><span class="line">	private static synchronized Channel createConnectChannel() &#123;</span><br><span class="line">		if (factory == null) &#123;</span><br><span class="line">			factory = new ConnectionFactory();</span><br><span class="line">			factory.setHost(&quot;118.25.54.197&quot;);</span><br><span class="line">			factory.setVirtualHost(&quot;test&quot;);</span><br><span class="line">			factory.setUsername(System.getProperty(&quot;username&quot;));</span><br><span class="line">			factory.setPassword(System.getProperty(&quot;password&quot;));</span><br><span class="line">		&#125;</span><br><span class="line">		if (conn == null) &#123;</span><br><span class="line">			try &#123;</span><br><span class="line">				conn = factory.newConnection();</span><br><span class="line">			&#125; catch(Exception e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		try &#123;</span><br><span class="line">			Channel channel = conn.createChannel();</span><br><span class="line">			return channel;</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		throw new RuntimeException(&quot;create failed&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	private static void closeChannel(Channel channel) &#123;</span><br><span class="line">		if (channel == null || !channel.isOpen()) return;</span><br><span class="line">		synchronized (channel) &#123;</span><br><span class="line">			if (channel.isOpen()) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					channel.close();</span><br><span class="line">				&#125; catch (IOException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125; catch (TimeoutException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	private static synchronized void closeConnection(Channel channel) &#123;</span><br><span class="line">		closeChannel(channel);</span><br><span class="line">		if (conn != null &amp;&amp; conn.isOpen()) &#123;</span><br><span class="line">			synchronized (conn) &#123;</span><br><span class="line">				if (conn != null &amp;&amp; conn.isOpen()) &#123;</span><br><span class="line">					try &#123;</span><br><span class="line">						conn.close();</span><br><span class="line">						conn = null;</span><br><span class="line">					&#125; catch (IOException e) &#123;</span><br><span class="line">						e.printStackTrace();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    public static void main(String[] argv) throws Exception &#123;</span><br><span class="line">        Channel channel = createConnectChannel();</span><br><span class="line">		</span><br><span class="line">		channel.queueDeclare(QUEUE_NAME, false, false, false, null);</span><br><span class="line">		System.out.println(declare);</span><br><span class="line">		String message = &quot;Hello World...&quot;;</span><br><span class="line">		channel.basicPublish(&quot;&quot;, ROUTING_KEY, null, message.getBytes());</span><br><span class="line">		</span><br><span class="line">		System.out.println(&quot; [x] Sent &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">		closeConnection(channel);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消费者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">import com.rabbitmq.client.Channel;</span><br><span class="line">import com.rabbitmq.client.Connection;</span><br><span class="line">import com.rabbitmq.client.ConnectionFactory;</span><br><span class="line">import com.rabbitmq.client.DeliverCallback;</span><br><span class="line"></span><br><span class="line">public class Recv &#123;</span><br><span class="line">    private final static String QUEUE_NAME = &quot;hello&quot;;</span><br><span class="line">    ...</span><br><span class="line">    public static void main(String[] argv) throws Exception &#123;</span><br><span class="line">        Channel channel = createConnectChannel();</span><br><span class="line">		</span><br><span class="line">		channel.queueDeclare(QUEUE_NAME, false, false, false, null);</span><br><span class="line">		</span><br><span class="line">		System.out.println(&quot; [*] Waiting for messages. To exit press CTRL+C&quot;);</span><br><span class="line">		</span><br><span class="line">		CountDownLatch cdl = new CountDownLatch(1);</span><br><span class="line">		DeliverCallback deliverCallback = (consumerTag, delivery) -&gt; &#123;</span><br><span class="line">            String message = new String(delivery.getBody(), &quot;UTF-8&quot;);</span><br><span class="line">            System.out.println(&quot; [x] Received &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">            cdl.countDown();</span><br><span class="line">        &#125;;</span><br><span class="line">        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -&gt; &#123; &#125;);</span><br><span class="line">        </span><br><span class="line">        cdl.await();</span><br><span class="line">        closeConnection(channel);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="多个消费者"><a href="#多个消费者" class="headerlink" title="多个消费者"></a>多个消费者</h3><p>基于设QOS且存在ACK的情况</p>
+<p>生产者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class RabbitQueueProducer &#123;</span><br><span class="line">	...</span><br><span class="line">	public static void main(String[] args) throws IOException &#123;</span><br><span class="line">		Channel channel = createConnectChannel();</span><br><span class="line">		channel.queueDeclare(QUEUE_NAME, false, false, false, null);</span><br><span class="line">		</span><br><span class="line">		Scanner sc = new Scanner(System.in);</span><br><span class="line">		String nextLine = sc.nextLine();</span><br><span class="line">		sc.close();</span><br><span class="line">		if (!nextLine.contains(&quot;.&quot;)) nextLine += &quot;.&quot;;</span><br><span class="line"></span><br><span class="line">		String message = String.join(&quot;&quot;, nextLine);</span><br><span class="line">		</span><br><span class="line">		channel.basicPublish(&quot;&quot;, QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());</span><br><span class="line">		System.out.println(&quot; [x] Sent &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">		closeConnection(channel);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消费者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">public class RabbitQueueConsumer &#123;</span><br><span class="line">	...</span><br><span class="line">	private static SimpleDateFormat sdf = new SimpleDateFormat(&quot;HH:mm:ss.SSS&quot;);</span><br><span class="line">	private static void doWork(String task) &#123;</span><br><span class="line">		for (char ch : task.toCharArray()) &#123;</span><br><span class="line">			if (ch == &apos;.&apos;) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					Thread.sleep(1000l);</span><br><span class="line">				&#125; catch (InterruptedException e) &#123;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">					Thread.currentThread().interrupt();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	public static void main(String[] args) throws IOException, InterruptedException &#123;</span><br><span class="line">		Channel channel = createConnectChannel();</span><br><span class="line">		channel.queueDeclare(QUEUE_NAME, false, false, false, null);</span><br><span class="line">		Thread.sleep(4000l);</span><br><span class="line">		channel.basicQos(1);</span><br><span class="line">		CountDownLatch cdl = new CountDownLatch(1);</span><br><span class="line">		DeliverCallback deliverCallback = (consumerTag, delivery) -&gt; &#123;</span><br><span class="line">            String message = new String(delivery.getBody(), &quot;UTF-8&quot;);</span><br><span class="line">            long deliveryTag = delivery.getEnvelope().getDeliveryTag();</span><br><span class="line">            System.out.println(&quot; [!] Delivery TAG &apos;&quot; + deliveryTag + &quot;&apos;&quot;);</span><br><span class="line">            System.out.println(&quot; [x] Received &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">            try &#123;</span><br><span class="line">            	doWork(message);</span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">            	System.out.println(&quot; [x] Done&quot;);</span><br><span class="line">            	channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);</span><br><span class="line">            &#125;</span><br><span class="line">            boolean ack = Math.random() &gt; 0.5;</span><br><span class="line">            System.out.println(&quot; [a] ACK &apos;&quot; + ack + &quot;&apos; &quot; + sdf.format(new Date()));</span><br><span class="line">            if (ack) &#123;</span><br><span class="line">            	channel.basicAck(deliveryTag, false);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">            	channel.basicNack(deliveryTag, false, true);</span><br><span class="line">            &#125;</span><br><span class="line">            cdl.countDown();</span><br><span class="line">        &#125;;</span><br><span class="line">        System.out.println(&quot; [*] Waiting for messages  &quot; + sdf.format(new Date()));</span><br><span class="line">        channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -&gt; &#123;</span><br><span class="line">        	System.out.println(&quot; [x] Cancel &apos;&quot; + consumerTag + &quot;&apos;&quot;);</span><br><span class="line">        &#125;);</span><br><span class="line">        cdl.await();</span><br><span class="line">        closeConnection(channel);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Fanout"><a href="#Fanout" class="headerlink" title="Fanout"></a>Fanout</h3><p>生产者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class RabbitFanoutProducer &#123;	</span><br><span class="line">	private final static String EXCHANGE_NAME = &quot;fanout&quot;;</span><br><span class="line">	private final static String ROUTING_KEY = &quot;&quot;;</span><br><span class="line">	...</span><br><span class="line">	public static void main(String[] args) throws IOException &#123;</span><br><span class="line">		Channel channel = createConnectChannel();</span><br><span class="line">		</span><br><span class="line">		</span><br><span class="line">		Scanner sc = new Scanner(System.in);</span><br><span class="line">		System.out.println(&quot; [!] Enter Message&quot;);</span><br><span class="line">		String nextLine = sc.nextLine();</span><br><span class="line">		sc.close();</span><br><span class="line">		if (!nextLine.contains(&quot;.&quot;)) nextLine += &quot;.&quot;;</span><br><span class="line"></span><br><span class="line">		String message = String.join(&quot;&quot;, nextLine);</span><br><span class="line">		</span><br><span class="line">		channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, null, message.getBytes());</span><br><span class="line">		</span><br><span class="line">		System.out.println(&quot; [x] Sent &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">		closeConnection(channel);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消费者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">public class RabbitFanoutConsumer &#123;</span><br><span class="line">	private final static String EXCHANGE_NAME = &quot;fanout&quot;;</span><br><span class="line">	private final static String ROUTING_KEY = &quot;&quot;;</span><br><span class="line">	...</span><br><span class="line">	public static void main(String[] args) throws IOException, InterruptedException &#123;</span><br><span class="line">		Channel channel = createConnectChannel();</span><br><span class="line">		</span><br><span class="line">		</span><br><span class="line">		Scanner sc = new Scanner(System.in);</span><br><span class="line">		System.out.println(&quot; [!] Enter Queue Name&quot;);</span><br><span class="line">		String queueName = sc.nextLine();</span><br><span class="line">		sc.close();</span><br><span class="line">		</span><br><span class="line">		channel.queueDeclare(queueName, false, false, false, null);</span><br><span class="line">		channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);</span><br><span class="line">		channel.queueBind(queueName, EXCHANGE_NAME, ROUTING_KEY);</span><br><span class="line">		</span><br><span class="line">		System.out.println(&quot; [*] Waiting for messages. To exit press CTRL+C&quot;);</span><br><span class="line">		</span><br><span class="line">		CountDownLatch cdl = new CountDownLatch(3);</span><br><span class="line">		DeliverCallback deliverCallback = (consumerTag, delivery) -&gt; &#123;</span><br><span class="line">            String message = new String(delivery.getBody(), &quot;UTF-8&quot;);</span><br><span class="line">            </span><br><span class="line">            System.out.println(&quot; [x] Received &apos;&quot; + message + &quot;&apos;&quot;);</span><br><span class="line">            cdl.countDown();</span><br><span class="line">        &#125;;</span><br><span class="line">        channel.basicConsume(queueName, true, deliverCallback, consumerTag -&gt; &#123; &#125;);</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        cdl.await();</span><br><span class="line">        closeConnection(channel);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/04/22/rabbitmq/" data-id="ck0v87sot002olwukdi8g7ltr" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-lock-opinion" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/07/lock-opinion/" class="article-date">
+  <time datetime="2019-03-07T13:51:20.000Z" itemprop="datePublished">2019-03-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/03/07/lock-opinion/">多线程死锁分析与加锁原则观点</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li>单条线程只同时持有一个锁的情况下，无论多少条线程肯定不会造成死锁</li>
+<li>同时持有多个锁的代码，只要不出现持锁顺序（考虑传递性）相反的情况，无论多少条线程肯定不会出现死锁<h1 id="死锁分析"><a href="#死锁分析" class="headerlink" title="死锁分析"></a>死锁分析</h1><h2 id="非传递性持锁顺序相反的死锁案例"><a href="#非传递性持锁顺序相反的死锁案例" class="headerlink" title="非传递性持锁顺序相反的死锁案例"></a>非传递性持锁顺序相反的死锁案例</h2><img src="../static/MB19030701-1.png" alt="MB19030701-1.png"></li>
+</ol>
+<p>线程1持有锁a等待锁b，线程2持有锁b等待锁a。这种情况下的分析，线程1上锁的顺序是ab，线程2上锁的顺序是ba，持锁顺序相反，代码运行到特定的点会导致死锁的情况出现</p>
+<h2 id="传递性下的持锁顺序相反的死锁案例"><a href="#传递性下的持锁顺序相反的死锁案例" class="headerlink" title="传递性下的持锁顺序相反的死锁案例"></a>传递性下的持锁顺序相反的死锁案例</h2><p><img src="../static/MB19030701-2.png" alt="MB19030701-2.png"></p>
+<p>线程1持有锁a等待锁b，线程2持有锁b等待锁c，线程3持有锁c等待锁a。这种情况，就是传递性情况下持锁顺序相反导致的死锁（就是我们通常说的构成了闭环）。线程1上锁的顺序是ab，线程2上锁的顺序是bc，线程3持锁的顺序为ca。这种情况下的分析，考虑作并线处理分析。将线程1与线程2并线分析，则他们并线后持锁顺序是abc，而线程3的持锁顺序是ca，这里面两边ac锁的顺序相反，代码运行到特定的点会导致死锁的情况出现</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/03/07/lock-opinion/" data-id="ck0v87sna001alwuk2mry506c" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-source-hashmap" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/02/28/source-hashmap/" class="article-date">
+  <time datetime="2019-02-28T13:48:24.000Z" itemprop="datePublished">2019-02-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/28/source-hashmap/">HashMap源码阅读笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="tableSizeFor方法"><a href="#tableSizeFor方法" class="headerlink" title="tableSizeFor方法"></a>tableSizeFor方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static final int tableSizeFor(int cap) &#123;</span><br><span class="line">        int n = cap - 1;</span><br><span class="line">        n |= n &gt;&gt;&gt; 1;</span><br><span class="line">        n |= n &gt;&gt;&gt; 2;</span><br><span class="line">        n |= n &gt;&gt;&gt; 4;</span><br><span class="line">        n |= n &gt;&gt;&gt; 8;</span><br><span class="line">        n |= n &gt;&gt;&gt; 16;</span><br><span class="line">        return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>由公式：<code>(a|b)&gt;&gt;&gt;k = (a&gt;&gt;&gt;k)|(b&gt;&gt;&gt;k)</code> 及<code>a|b|b = a|b</code>及交换律得到一个推论： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">若a = n&gt;&gt;&gt;0|n&gt;&gt;&gt;1|n&gt;&gt;&gt;2|n&gt;&gt;&gt;3|....|n&gt;&gt;&gt;(2的k次方-1) ，那么a | a &gt;&gt;&gt; (2的k次方) = n &gt;&gt;&gt; (2的k+1次方 - 1)</span><br></pre></td></tr></table></figure>
+
+<p>所以上面的<code>n&gt;&gt;&gt;1</code>到<code>n&gt;&gt;&gt;16</code>部分的代码计算相当于求 <code>n|n&gt;&gt;&gt;1|n&gt;&gt;&gt;2|n&gt;&gt;&gt;3|...|n&gt;&gt;&gt;31</code>(n取原始值），即得到的数为二进制包含最高位以下的位全部置1，例如：若n=15=0b1111，最终得到0b1111=15；若n=12=0b1100，最终得到0b1111=15；若n=0b0101，最终得到0b0111=7</p>
+<h2 id="resize方法"><a href="#resize方法" class="headerlink" title="resize方法"></a>resize方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">final Node&lt;K,V&gt;[] resize() &#123;</span><br><span class="line">        Node&lt;K,V&gt;[] oldTab = table;</span><br><span class="line">        int oldCap = (oldTab == null) ? 0 : oldTab.length;</span><br><span class="line">        int oldThr = threshold;</span><br><span class="line">        int newCap, newThr = 0;</span><br><span class="line">        if (oldCap &gt; 0) &#123;</span><br><span class="line">            if (oldCap &gt;= MAXIMUM_CAPACITY) &#123;  // 实际数量超过Integer.MAX_VALUE的一半，数组的容量设为Integer.MAX_VALUE</span><br><span class="line">                threshold = Integer.MAX_VALUE;</span><br><span class="line">                return oldTab;</span><br><span class="line">            &#125;</span><br><span class="line">            // 数组容量翻倍，并且旧的容量不小于于初始容量时，同时也将阈值翻倍</span><br><span class="line">            else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">                     oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">                newThr = oldThr &lt;&lt; 1; // double threshold</span><br><span class="line">        &#125;</span><br><span class="line">        else if (oldThr &gt; 0) // 新建类时有设置阈值但没设置数组容量，则以阈值作为容量</span><br><span class="line">            newCap = oldThr;</span><br><span class="line">        else &#123;               // 新建时什么都没有设置，给默认值：16 和 16 * 0.75</span><br><span class="line">            newCap = DEFAULT_INITIAL_CAPACITY;</span><br><span class="line">            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</span><br><span class="line">        &#125;</span><br><span class="line">        if (newThr == 0) &#123; // 检查阈值设置，未设置时由 容量阈值比和容量乘积计算</span><br><span class="line">            float ft = (float)newCap * loadFactor;</span><br><span class="line">            newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?</span><br><span class="line">                      (int)ft : Integer.MAX_VALUE);</span><br><span class="line">        &#125;</span><br><span class="line">        threshold = newThr;</span><br><span class="line">        @SuppressWarnings(&#123;&quot;rawtypes&quot;,&quot;unchecked&quot;&#125;)</span><br><span class="line">            Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];</span><br><span class="line">        table = newTab;</span><br><span class="line">        // 扩容后重新放置节点</span><br><span class="line">        if (oldTab != null) &#123;</span><br><span class="line">            for (int j = 0; j &lt; oldCap; ++j) &#123;</span><br><span class="line">                Node&lt;K,V&gt; e;</span><br><span class="line">                if ((e = oldTab[j]) != null) &#123;</span><br><span class="line">                    oldTab[j] = null;</span><br><span class="line">                    if (e.next == null) // 数组位置的树只有一个节点，扩容后，新位置当然也只有一个节点</span><br><span class="line">                        newTab[e.hash &amp; (newCap - 1)] = e;</span><br><span class="line">                    else if (e instanceof TreeNode) // 数组+树结构时，执行树的分割</span><br><span class="line">                        ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);</span><br><span class="line">                    else &#123; // 数组+链表时，链表分割为两份，直接比较扩容后(capacity - 1)的值新增加的那一位即可知道分割到哪一部分</span><br><span class="line">                        Node&lt;K,V&gt; loHead = null, loTail = null;    // 分割到低位上的节点的头与尾</span><br><span class="line">                        Node&lt;K,V&gt; hiHead = null, hiTail = null;    // 分割到高位上的节点的头和尾</span><br><span class="line">                        Node&lt;K,V&gt; next;</span><br><span class="line">                        do &#123;</span><br><span class="line">                            next = e.next;</span><br><span class="line">                            if ((e.hash &amp; oldCap) == 0) &#123; // hash值对应于新扩容后的位（oldCap刚好是新扩容的长度的新增位，实际上应写为(newCap - 1 - (oldCap - 1))的值，由于刚好等于oldCap所以就减少了计算）的值是0，分割到0值的那一部分</span><br><span class="line">                                if (loTail == null)</span><br><span class="line">                                    loHead = e;</span><br><span class="line">                                else</span><br><span class="line">                                    loTail.next = e;</span><br><span class="line">                                loTail = e;</span><br><span class="line">                            &#125;</span><br><span class="line">                            else &#123;   // hash值对应于(newCap - 1)的新的位的值为1，分割到1值的那一部分</span><br><span class="line">                                if (hiTail == null)</span><br><span class="line">                                    hiHead = e;</span><br><span class="line">                                else</span><br><span class="line">                                    hiTail.next = e;</span><br><span class="line">                                hiTail = e;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125; while ((e = next) != null);</span><br><span class="line">                        if (loTail != null) &#123;</span><br><span class="line">                            loTail.next = null;</span><br><span class="line">                            newTab[j] = loHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                        if (hiTail != null) &#123;</span><br><span class="line">                            hiTail.next = null;</span><br><span class="line">                            newTab[j + oldCap] = hiHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return newTab;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="TreeNode结构"><a href="#TreeNode结构" class="headerlink" title="TreeNode结构"></a>TreeNode结构</h2><p>HashMap在数据量较小时，使用的数组+链表的结构，当数据量较大时使用数组+树的结构。由数组+链表到数组+树的结构的转化，在于<code>treeifyBin</code>方法。当链表的长度大于7时，会触发<code>treeifyBin</code>方法判断是否转变存储结构，当数组的长度也大于63时，即会使该hash值的链表结构变更为树结构。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/02/28/source-hashmap/" data-id="ck0v87sn90019lwuksrab3zca" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-jvm-heap-stack" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/02/17/jvm-heap-stack/" class="article-date">
+  <time datetime="2019-02-17T02:49:00.000Z" itemprop="datePublished">2019-02-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/17/jvm-heap-stack/">JVM堆栈笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><ol>
+<li>堆内存默认新生代和老年代空间占比：1 : 2</li>
+<li>新生代中默认单个Survivor区和Eden区的空间占比：1 : 8</li>
+<li><a href="https://blog.csdn.net/leunging/article/details/80599282" target="_blank" rel="noopener">https://blog.csdn.net/leunging/article/details/80599282</a></li>
+</ol>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ol>
+<li><p>-Xms        堆内存初始大小（记忆方式，m以内存的单词memory记忆，s以small记忆，想象一下衣服的尺号就好记了），使用时：-Xms256m</p>
+</li>
+<li><p>-Xmx        堆内存最大大小（记忆方式同上，最后一个x以extra记忆，同样想象下衣服的加大号就好记了）</p>
+</li>
+<li><p>-Xmn        堆内存中新生代的最大内存和初始内存设为一致的值了，不再变化（记忆方式同上，n使用new记忆）</p>
+</li>
+<li><p>-XX:NewSize        堆内存中新生代的初始内存，使用时：-XX:NewSize=256m</p>
+</li>
+<li><p>-XX:MaxNewSize        堆内存中新生代的最大内存</p>
+</li>
+<li><p>-Xss(或-XX:ThreadStackSize)        每个线程的栈内存的大小（默认1M），该数值影响可以启动的线程的数量，也影响每个线程的栈帧数量（记忆方式，Stack Size）</p>
+</li>
+<li><p>-XX:+PrintGC(别名-verbose:gc)        打印gc的信息</p>
+</li>
+<li><p>-XX:+PrintGCTimeStamps        以基准时间的形式打印GC的时间戳</p>
+<p>不开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[GC (Allocation Failure)  155644K-&gt;36463K(402432K), 0.0095270 secs]</span><br></pre></td></tr></table></figure>
+
+<p>开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4.609: [GC (Allocation Failure)  162642K-&gt;34898K(396800K), 0.0105201 secs]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>-XX:+PrintGCDateStamps        以日期的形式打印GC时间戳（可以设置日期形式和基准形式同时打印）</p>
+<p>开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2019-02-25T09:36:33.424+0800: [GC (Allocation Failure)  155673K-&gt;36616K(397824K), 0.0084967 secs]</span><br></pre></td></tr></table></figure>
+
+<p>同时开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2019-02-25T09:38:16.009+0800: 6.488: [GC (Allocation Failure)  169212K-&gt;42272K(518656K), 0.0163488 secs]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>-XX:+PrintGCDetails        打印gc的详细信息，启动脚本下运行会自动开启-XX:+PrintGC，jinfo附加下运行不会自动开启</p>
+<p>开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[GC (Allocation Failure) [PSYoungGen: 137517K-&gt;9963K(147456K)] 169528K-&gt;41982K(534528K), 0.0124863 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>-XX:+PrintHeapAtGC        在进行GC的前后打印出堆的信息</p>
+<p>开启时打印如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;Heap before GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 147456K, used 131072K [0x00000000f6000000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 131072K, 100% used [0x00000000f6000000,0x00000000fe000000,0x00000000fe000000)</span><br><span class="line">  from space 16384K, 0% used [0x00000000ff000000,0x00000000ff000000,0x0000000100000000)</span><br><span class="line">  to   space 16384K, 0% used [0x00000000fe000000,0x00000000fe000000,0x00000000ff000000)</span><br><span class="line"> ParOldGen       total 163840K, used 0K [0x0000000087e00000, 0x0000000091e00000, 0x00000000f6000000)</span><br><span class="line">  object space 163840K, 0% used [0x0000000087e00000,0x0000000087e00000,0x0000000091e00000)</span><br><span class="line"> Metaspace       used 14008K, capacity 14230K, committed 14464K, reserved 1062912K</span><br><span class="line">  class space    used 1295K, capacity 1356K, committed 1408K, reserved 1048576K</span><br><span class="line">[GC (Allocation Failure)  131072K-&gt;17089K(311296K), 0.0130938 secs]</span><br><span class="line">Heap after GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 147456K, used 16366K [0x00000000f6000000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 131072K, 0% used [0x00000000f6000000,0x00000000f6000000,0x00000000fe000000)</span><br><span class="line">  from space 16384K, 99% used [0x00000000fe000000,0x00000000feffb9b0,0x00000000ff000000)</span><br><span class="line">  to   space 16384K, 0% used [0x00000000ff000000,0x00000000ff000000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 163840K, used 723K [0x0000000087e00000, 0x0000000091e00000, 0x00000000f6000000)</span><br><span class="line">  object space 163840K, 0% used [0x0000000087e00000,0x0000000087eb4d20,0x0000000091e00000)</span><br><span class="line"> Metaspace       used 14008K, capacity 14230K, committed 14464K, reserved 1062912K</span><br><span class="line">  class space    used 1295K, capacity 1356K, committed 1408K, reserved 1048576K</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>-Xloggc:/var/log/java/gc.log        指定GC日志的输出文件</p>
+</li>
+<li><p>-XX:SurvivorRatio        Eden区和Survivor区的内存比值</p>
+</li>
+<li><p>-XX:NewRatio        老年代和新生代的内存比值</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/02/17/jvm-heap-stack/" data-id="ck0v87sn60014lwuk2ryw6tsc" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-source-countdownlatch" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/02/09/source-countdownlatch/" class="article-date">
+  <time datetime="2019-02-09T07:05:55.000Z" itemprop="datePublished">2019-02-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/09/source-countdownlatch/">CountDownLatch源码阅读</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="await方法如何实现线程等待"><a href="#await方法如何实现线程等待" class="headerlink" title="await方法如何实现线程等待"></a>await方法如何实现线程等待</h2><p><code>await</code>方法，由<code>CountDownLatch.Sync.acquireSharedInterruptibly</code>代理完成，实际上由Sync的父类<code>AbstractQueuedSynchronizer</code>实现了该方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public final void acquireSharedInterruptibly(int arg)</span><br><span class="line">        throws InterruptedException &#123;</span><br><span class="line">    if (Thread.interrupted())</span><br><span class="line">        throw new InterruptedException();</span><br><span class="line">    if (tryAcquireShared(arg) &lt; 0)</span><br><span class="line">        doAcquireSharedInterruptibly(arg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于arg参数入参固定为1, 而Sync实现的<code>tryAcquireShared</code>方法对于入参数1返回-1，因此实际相当于调用了如下代码，<code>Thread.interrupted</code>确保了当前线程不是interrupted的状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public final void acquireSharedInterruptibly(int arg)</span><br><span class="line">        throws InterruptedException &#123;</span><br><span class="line">    if (Thread.interrupted())</span><br><span class="line">        throw new InterruptedException();</span><br><span class="line">    doAcquireSharedInterruptibly(arg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>AbstractQueuedSynchronizer</code>类的<code>doAcquireSharedInterruptibly</code>方法，其中<code>addWaiter</code>方法是往Node链表最后增加一个Node节点并返回该节点，Node对象中存储了当前线程t</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">private void doAcquireSharedInterruptibly(int arg)</span><br><span class="line">    throws InterruptedException &#123;</span><br><span class="line">    final Node node = addWaiter(Node.SHARED);</span><br><span class="line">    boolean failed = true;</span><br><span class="line">    try &#123;</span><br><span class="line">        for (;;) &#123;</span><br><span class="line">            final Node p = node.predecessor();</span><br><span class="line">            if (p == head) &#123;</span><br><span class="line">                int r = tryAcquireShared(arg);</span><br><span class="line">                if (r &gt;= 0) &#123;</span><br><span class="line">                    setHeadAndPropagate(node, r);</span><br><span class="line">                    p.next = null; // help GC</span><br><span class="line">                    failed = false;</span><br><span class="line">                    return;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">                parkAndCheckInterrupt())</span><br><span class="line">                throw new InterruptedException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        if (failed)</span><br><span class="line">            cancelAcquire(node);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际上由于arg值固定为1，上面方法相当于如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private void doAcquireSharedInterruptibly(int arg)</span><br><span class="line">    throws InterruptedException &#123;</span><br><span class="line">    final Node node = addWaiter(Node.SHARED);</span><br><span class="line">    boolean failed = true;</span><br><span class="line">    try &#123;</span><br><span class="line">        for (;;) &#123;</span><br><span class="line">            final Node p = node.predecessor();</span><br><span class="line">            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">                parkAndCheckInterrupt())</span><br><span class="line">                throw new InterruptedException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        if (failed)</span><br><span class="line">            cancelAcquire(node);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>shouldParkAfterFailedAcquire</code>方法判断当前新增的节点（node）的前置节点（p）是否持有信号，并在没有持有信号的情况下，使其变更为持有信号状态（使state值设为SIGNAL）。<code>doAcquireSharedInterruptibly</code>中for循环直到<code>shouldParkAfterFailedAcquire</code>方法判断node的前置节点持有信号时，才会调用<code>parkAndCheckInterrupt</code>方法。</p>
+<p><code>parkAndCheckInterrupt</code>代码便是阻塞代码真正所在的位置，该功方法代码很简单，直接委托<code>LockSupport.park(this)</code>完成，<code>LockSupport.park(this)</code>代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static void park(Object blocker) &#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    setBlocker(t, blocker);</span><br><span class="line">    UNSAFE.park(false, 0L);</span><br><span class="line">    setBlocker(t, null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>setBlocker</code>时native的方法，它的作用是将第二个参数存储在第一个参数（线程）的堆内存中（即这是一个直接操作堆内存存储的实现），上面<code>park</code>方法中<code>UNSAFE.park</code>为阻塞功能的实现，点进去看发现也是一个native修饰的方法，即真正阻塞功能的还是由底层实现的，没法看到具体的代码。</p>
+<h2 id="countDown方法如何实现计数递减并取消阻塞"><a href="#countDown方法如何实现计数递减并取消阻塞" class="headerlink" title="countDown方法如何实现计数递减并取消阻塞"></a>countDown方法如何实现计数递减并取消阻塞</h2><p>与<code>await</code>方法一样，<code>countDown</code>方法也是将工作委托给了Sync类的方法完成。<code>CountDownLatch.Sync.releaseShared</code>代理完成该功能，<code>CountDownLatch.Sync.releaseShared</code>实际上也是已经由Sync的父类<code>AbstractQueuedSynchronizer</code>实现了，该方法如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public final boolean releaseShared(int arg) &#123;</span><br><span class="line">    if (tryReleaseShared(arg)) &#123;</span><br><span class="line">        doReleaseShared();</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>tryReleaseShared</code>方法尝试进行计数（即<code>state</code>）递减，<code>tryReleaseShared</code>方法中与前面一些方法一样，使用了原子性的方法<code>compareAndSetState</code>完成递减操作，该原子性操作保证了不会出现两次countDown之后<code>state</code>只递减一次的情况。当本次递减后计数达到0返回true，原先计数已经为0或者本次递减后计数不为0，返回false。<code>tryReleaseShared</code>返回true后，才能调用<code>doReleaseShared</code>完成Node恢复阻塞的线程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">protected boolean tryReleaseShared(int releases) &#123;</span><br><span class="line">    // Decrement count; signal when transition to zero</span><br><span class="line">    for (;;) &#123;</span><br><span class="line">        int c = getState();</span><br><span class="line">        if (c == 0)</span><br><span class="line">            return false;</span><br><span class="line">        int nextc = c-1;</span><br><span class="line">        if (compareAndSetState(c, nextc))</span><br><span class="line">            return nextc == 0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下所示为<code>doReleaseShared</code>方法代码，当<code>ws == Node.SIGNAL</code>（持有信号）时，调用<code>compareAndSetWaitStatus</code>尝试使Node不再持有信号（state值从SIGNAL变为0，<code>compareAndSetWaitStatus</code>调用的<code>unsafe.compareAndSwapInt</code>方法是原子性的方法），释放信号成功则进行<code>unparkSuccessor</code>的调用，不成功则继续循环（一般另外一条线程同时操作这个node的时候才会导致不成功），当<code>ws == 0</code>时，将该Node标识转为PROPAGATE后不再作处理，这种情况基本与<code>CountDownLatch</code>的业务无关，只是<code>AbstractQueuedSynchronizer</code>对Node链表结构的维护工作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">private void doReleaseShared() &#123;</span><br><span class="line">    for (;;) &#123;</span><br><span class="line">        Node h = head;</span><br><span class="line">        if (h != null &amp;&amp; h != tail) &#123;</span><br><span class="line">            int ws = h.waitStatus;</span><br><span class="line">            if (ws == Node.SIGNAL) &#123;</span><br><span class="line">                if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))</span><br><span class="line">                    continue;            // loop to recheck cases</span><br><span class="line">                unparkSuccessor(h);</span><br><span class="line">            &#125;</span><br><span class="line">            else if (ws == 0 &amp;&amp;</span><br><span class="line">                     !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))</span><br><span class="line">                continue;                // loop on failed CAS</span><br><span class="line">        &#125;</span><br><span class="line">        if (h == head)                   // loop if head changed</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后<code>unparkSuccessor</code>方法，找到head Node的下一个Node s，找到阻塞的线程<code>s.thread</code>， 调用<code>LockSupport.unpark(s.thread)</code>解除线程阻塞（核心代码<code>UNSAFE.unpark(thread)</code>方法，是native方法，发现一点有意思的情况：该方法运行完会改变head的指向，虽然与这里研究的关系不大，但传入参数是thread却能改变Sync的head Node指针确是挺有意思的）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private void unparkSuccessor(Node node) &#123;</span><br><span class="line">        </span><br><span class="line">        int ws = node.waitStatus;</span><br><span class="line">        if (ws &lt; 0)</span><br><span class="line">            compareAndSetWaitStatus(node, ws, 0);</span><br><span class="line"></span><br><span class="line">        Node s = node.next;</span><br><span class="line">        if (s == null || s.waitStatus &gt; 0) &#123;</span><br><span class="line">            s = null;</span><br><span class="line">            for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)</span><br><span class="line">                if (t.waitStatus &lt;= 0)</span><br><span class="line">                    s = t;</span><br><span class="line">        &#125;</span><br><span class="line">        if (s != null)</span><br><span class="line">            LockSupport.unpark(s.thread);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>CountDownLatch基本由<code>CountDownLatch.Sync</code>代理，Sync大量调用了<code>sun.misc.Unsafe</code>的代码。使用Unsafe的用于改变变量值的原子性方法，减少一些锁的使用；另外一点是使用park和<code>sun.misc.Unsaft.park</code>和<code>sun.misc.Unsaft.unpark</code>方法来实现指定线程的阻塞与解除阻塞。可惜的是<code>sun.misc.Unsafe</code>类oracle并不开放给外部代码使用。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/02/09/source-countdownlatch/" data-id="ck0v87sn80016lwukx39o1rxj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-iptables" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/30/iptables/" class="article-date">
+  <time datetime="2018-12-30T08:13:02.000Z" itemprop="datePublished">2018-12-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/30/iptables/">iptables 笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="iptables-笔记"><a href="#iptables-笔记" class="headerlink" title="iptables 笔记"></a>iptables 笔记</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p><img src="../static/MB18123001-1.png" alt="iptables总体"></p>
+<h2 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h2><p>显示列表：<code>iptables -t filter -L -n</code>      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出 </p>
+<p>清空设置：<code>iptables -F</code> </p>
+<p>阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：<code>iptables -I DOCKER -s 111.111.11.11 -d 10.18.139.82 -p TCP --dport 8080 -j DROP</code>  </p>
+<p>添加一条开放端口的规则： <code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code>  -A表示添加规则 </p>
+<p>替换一条规则为开放220端口：<code>iptables -R INPUT 1 -p tcp --dport 220 -j ACCEPT</code> -R表示替换规则，<code>INPUT 1</code>表示INPUT链路的第1条规则，规则行号用<code>iptables -L -n --line-number</code>命令查看 </p>
+<p>插入一条规则：<code>iptables -I INPUT 3 -p tcp --dport 220 -j ACCEPT</code>  -I表示插入规则</p>
+<p>添加一条禁止端口的规则： <code>iptables -A INPUT -p tcp --dport 8080 -j DROP</code> </p>
+<p>删除一条规则：先使用 <code>iptables -L -n --line-number</code> 查看number，之后使用<code>iptables -D INPUT 3</code> 删除number号对应的规则 </p>
+<p>通常设置只通过部分端口的规则需要设置允许换回链路，以及允许主动访问外网时外网的响应流量流入：<code>iptables -A INPUT -i lo -j ACCEPT</code>、<code>iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT</code>，第一条为环回链路，第二条为以连接或程序启动的向外端口允许流入</p>
+<p>设置环回链路规则时，通过<code>iptable -L -n</code>命令看到不到详细信息会误以为通过了全部端口，使用<code>iptables -L -n -v</code>命令看详细信息，才可看到实际规则</p>
+<p>一个规则里设置多个端口：<code>iptables -A INPUT -p tcp -m multiport --destination-ports 22,3306,443,80 -j ACCEPT</code></p>
+<p>命令里设置iptables规则，重启后将失效，通过<code>iptables-save &gt; /root/iptables.conf</code>保存配置到文件里，重启后使用<code>iptables-restore &lt; /root/iptables.conf</code>恢复配置。如果service iptables可以使用，则可以直接用<code>service iptables save</code>保存 </p>
+<h2 id="ip黑名单"><a href="#ip黑名单" class="headerlink" title="ip黑名单"></a>ip黑名单</h2><p>结合使用ipset软件设置ip黑名单</p>
+<p>安装软件：<code>apt-get install ipset</code></p>
+<p>创建名单：<code>ipset create blacklist hash:net</code>    最后的参数还可以是：<code>hash:ip</code>、<code>hash:ip,port</code>等，名单是以hash方式存储的，所以不会怎么影响性能，hash size默认能存储1024个</p>
+<p>创建自动过期的名单：<code>ipset create timoutlist hash:ip timeout 300</code>    300秒后自动过期</p>
+<p>添加ip：<code>ipset add blacklist 1.1.1.1</code></p>
+<p>添加ip地址段：<code>ipset add blacklist 1.1.1.0/24</code> 前24byte的地址匹配</p>
+<p>如果集合是ip,port的形式：<code>ipset add blacklist 1.1.1.1,80</code> 添加1.1.1.1的ip的80端口</p>
+<p>查看列表：<code>ipset list</code></p>
+<p>查看集合内内容：<code>ipset list blacklist</code></p>
+<p>清空所有集合：<code>ipset flush</code></p>
+<p>清空单个集合：<code>ipset flush blacklist</code></p>
+<p>从集合删除内容：<code>ipset del blacklist x.x.x.x</code></p>
+<p>销毁集合：<code>ipset destroy blacklist</code></p>
+<p>使用ipset名单：<code>iptables -A INPUT -m set --match-set blacklist src -p tcp -j DROP</code></p>
+<p>如果是设置不匹配名单添加<code>!</code>符合即可：<code>iptables -A INPUT -m set ! --match-set blacklist src -p tcp -j DROP</code></p>
+<p>保存与恢复：通过<code>ipset save &gt; /root/ipset.conf</code>保存配置到文件里，重使用<code>ipset restore &lt; /root/ipset.conf</code>恢复配置</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/12/30/iptables/" data-id="ck0v87sn2000ylwukoh5la436" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-mysql-slave" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/30/mysql-slave/" class="article-date">
+  <time datetime="2018-12-30T05:23:29.000Z" itemprop="datePublished">2018-12-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/30/mysql-slave/">MySQL主从同步配置</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>为了方便操作，这里使用docker</p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><ol>
+<li><p>创建网桥 <code>docker network create nw-ms</code>  </p>
+</li>
+<li><p>主MySQL环境：<code>docker run -it --name=master --network=nw-ms --network-alias=master uetty/mysql:5.7.23</code>  </p>
+</li>
+<li><p><code>vim /etc/mysql/mysql.conf.d/mysqld.cnf</code>  添加两行  </p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server-id               = 1</span><br><span class="line">log_bin                 = /var/log/mysql/mysql-bin.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启MySQL <code>service mysql restart</code> </p>
+</li>
+<li><p>退出容器    <code>ctrl + p &amp;&amp; ctrl + q</code>  </p>
+</li>
+<li><p>从MySQL环境：<code>docker run -it --name=slave --network=nw-ms --network-alias=slave uetty/mysql:5.7.23</code>  </p>
+</li>
+<li><p><code>vim /etc/mysql/mysql.conf.d/mysqld.cnf</code>  添加两行<br><code>server-id               = 100</code><br><code>log_bin                 = /var/log/mysql/mysql-bin.log</code>  </p>
+</li>
+<li><p>修改从服务器UUID使其不跟主服务器一样（使用docker部署同一台机子上会出现uuid一样的情况）<code>vim /var/lib/mysql/auto.cnf</code>  </p>
+</li>
+<li><p>重启MySQL <code>service mysql restart</code> </p>
+</li>
+<li><p>退出容器 <code>ctrl + p &amp;&amp; ctrl + q</code>  </p>
+</li>
+</ol>
+<h2 id="创建从服务器登陆主服务器账号并授权"><a href="#创建从服务器登陆主服务器账号并授权" class="headerlink" title="创建从服务器登陆主服务器账号并授权"></a>创建从服务器登陆主服务器账号并授权</h2><ol>
+<li><p>进入主服务器 <code>docker exec -it master bash</code>  </p>
+</li>
+<li><p>登陆mysql：<code>mysql -uroot -p123456</code>  </p>
+</li>
+<li><p>创建账号并授权<br> <code>create user root@&#39;slave.nw-ms&#39; identified by &#39;123456&#39;;</code>  登陆用户ip限制根据需要随意放宽<br> <code>grant replication slave on *.* to &#39;root&#39;@&#39;slave.nw-ms&#39; identified by ‘123456’;</code><br> <code>flush privileges;</code></p>
+</li>
+<li><p>查看当前log文件名及位置作为同步起始点（保证主库停止更新的情况下，如果还有更新任务，应暂时锁表禁止更新<code>FLUSH TABLES WITH READ LOCK</code>，待主从库数据相同，并且记录下主库file和position之后再解除<code>UNLOCK TABLES;</code>）<br> <code>show master status;</code> 如下所示，记录下File和Position</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br><span class="line">| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |</span><br><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br><span class="line">| mysql-bin.000001 |      752 |              |                  |                   |</span><br><span class="line">+------------------+----------+--------------+------------------+-------------------+</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>退出主服务器<code>ctrl + p &amp;&amp; ctrl + q</code>  </p>
+</li>
+</ol>
+<h2 id="从服务器配置"><a href="#从服务器配置" class="headerlink" title="从服务器配置"></a>从服务器配置</h2><p>确保从服务器数据与主服务器相同</p>
+<ol>
+<li><p>进入从服务器 <code>docker exec -it slave bash</code>  </p>
+</li>
+<li><p>登陆mysql：<code>mysql -uroot -p123456</code>  </p>
+</li>
+<li><p>设置同步参数 <code>change master to master_host=&#39;master&#39;, master_user=&#39;root&#39;, master_password=&#39;123456&#39;, master_log_file=&#39;mysql-bin.000001&#39;, master_log_pos=752;</code>   注：此处<code>master_host</code>对应docker容器运行时的<code>--network-alias</code>，也可直接使用ip地址，<code>master_log_file</code>和<code>master_log_pos</code>即对应前面<code>show master status;</code>所显示的数据  </p>
+</li>
+<li><p>开始同步 <code>start slave;</code>  </p>
+</li>
+<li><p>验证是否成功 <code>show slave status\G</code>，查看列出的信息内的以下两个参数值是否不为NO，否则同步失败，若同步失败可关注<code>Last_IO_Error</code>参数找出同步失败原因</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Slave_IO_Running: Yes  </span><br><span class="line">Slave_SQL_Running: Yes</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最后就可以在主库中写一些数据试试看了</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/12/30/mysql-slave/" data-id="ck0v87sn40010lwukmxd16mzs" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-dubbo-retry-policy" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/11/15/dubbo-retry-policy/" class="article-date">
+  <time datetime="2018-11-15T14:40:56.000Z" itemprop="datePublished">2018-11-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/15/dubbo-retry-policy/">dubbo启动时class not found org/apache/curator/RetryPolicy</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: org/apache/curator/RetryPolicy</span><br><span class="line">	at com.alibaba.dubbo.remoting.zookeeper.curator.CuratorZookeeperTransporter.connect(CuratorZookeeperTransporter.java:27)</span><br><span class="line">	at com.alibaba.dubbo.remoting.zookeeper.ZookeeperTransporter$Adaptive.connect(ZookeeperTransporter$Adaptive.java)</span><br><span class="line">	at com.alibaba.dubbo.registry.zookeeper.ZookeeperRegistry.&lt;init&gt;(ZookeeperRegistry.java:69)</span><br><span class="line">	at com.alibaba.dubbo.registry.zookeeper.ZookeeperRegistryFactory.createRegistry(ZookeeperRegistryFactory.java:38)</span><br><span class="line">	at com.alibaba.dubbo.registry.support.AbstractRegistryFactory.getRegistry(AbstractRegistryFactory.java:96)</span><br><span class="line">	at com.alibaba.dubbo.registry.RegistryFactory$Adaptive.getRegistry(RegistryFactory$Adaptive.java)</span><br><span class="line">	at com.alibaba.dubbo.registry.integration.RegistryProtocol.getRegistry(RegistryProtocol.java:203)</span><br><span class="line">	at com.alibaba.dubbo.registry.integration.RegistryProtocol.export(RegistryProtocol.java:137)</span><br><span class="line">	at com.alibaba.dubbo.rpc.protocol.ProtocolFilterWrapper.export(ProtocolFilterWrapper.java:98)</span><br><span class="line">	at com.alibaba.dubbo.rpc.protocol.ProtocolListenerWrapper.export(ProtocolListenerWrapper.java:55)</span><br><span class="line">	at com.alibaba.dubbo.qos.protocol.QosProtocolWrapper.export(QosProtocolWrapper.java:60)</span><br><span class="line">	at com.alibaba.dubbo.rpc.Protocol$Adaptive.export(Protocol$Adaptive.java)</span><br><span class="line">	at com.alibaba.dubbo.config.ServiceConfig.doExportUrlsFor1Protocol(ServiceConfig.java:513)</span><br><span class="line">	at com.alibaba.dubbo.config.ServiceConfig.doExportUrls(ServiceConfig.java:358)</span><br><span class="line">	at com.alibaba.dubbo.config.ServiceConfig.doExport(ServiceConfig.java:317)</span><br><span class="line">	at com.alibaba.dubbo.config.ServiceConfig.export(ServiceConfig.java:216)</span><br><span class="line">	at com.alibaba.dubbo.config.spring.ServiceBean.export(ServiceBean.java:291)</span><br><span class="line">	at com.alibaba.dubbo.config.spring.ServiceBean.onApplicationEvent(ServiceBean.java:131)</span><br><span class="line">	at com.alibaba.dubbo.config.spring.ServiceBean.onApplicationEvent(ServiceBean.java:53)</span><br><span class="line">	at org.springframework.context.event.SimpleApplicationEventMulticaster.doInvokeListener(SimpleApplicationEventMulticaster.java:172)</span><br><span class="line">	at org.springframework.context.event.SimpleApplicationEventMulticaster.invokeListener(SimpleApplicationEventMulticaster.java:165)</span><br><span class="line">	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:139)</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.publishEvent(AbstractApplicationContext.java:398)</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.publishEvent(AbstractApplicationContext.java:355)</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.finishRefresh(AbstractApplicationContext.java:882)</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549)</span><br><span class="line">	at org.springframework.context.support.ClassPathXmlApplicationContext.&lt;init&gt;(ClassPathXmlApplicationContext.java:144)</span><br><span class="line">	at org.springframework.context.support.ClassPathXmlApplicationContext.&lt;init&gt;(ClassPathXmlApplicationContext.java:95)</span><br><span class="line">	at com.uetty.dbo.service.App.main(App.java:18)</span><br><span class="line">Caused by: java.lang.ClassNotFoundException: org.apache.curator.RetryPolicy</span><br><span class="line">	at java.net.URLClassLoader.findClass(URLClassLoader.java:381)</span><br><span class="line">	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)</span><br><span class="line">	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:338)</span><br><span class="line">	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)</span><br><span class="line">	... 29 more</span><br></pre></td></tr></table></figure>
+
+<p>确保包含如下依赖，注意该依赖所依赖的的zookeeper的jar版本需与zookeeper服务器版本匹配，具体版本对应见zookeeper文档或者一个个版本调试一下试试（如果与zookeeper版本匹配问题会报KeeperErrorCode = Unimplemented错误）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;curator-framework&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/11/15/dubbo-retry-policy/" data-id="ck0v87sn1000wlwukin9mfheb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/">dubbo</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-shadowsocks-server" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/10/01/shadowsocks-server/" class="article-date">
+  <time datetime="2018-10-01T06:12:30.000Z" itemprop="datePublished">2018-10-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/10/01/shadowsocks-server/">shadowsocks docker 镜像实现代理 - 服务端（搭建代理服务器）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>基于Ubuntu 18.04 / Ubuntu 16.04测试，这里记录的是代理服务器的搭建，需要有一台境外的linux(各种发行版本的都行，只要能安装docker)服务器<br>docker 安装见 <a href="https://blog.csdn.net/Vincent_Field/article/details/82086197" target="_blank" rel="noopener">https://blog.csdn.net/Vincent_Field/article/details/82086197</a></p>
+<h2 id="镜像获取"><a href="#镜像获取" class="headerlink" title="镜像获取"></a>镜像获取</h2><hr>
+<p>docker pull uetty/shadowsocks:server</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><hr>
+<h3 id="初次启动"><a href="#初次启动" class="headerlink" title="初次启动"></a>初次启动</h3><blockquote>
+<ol>
+<li>宿主机上运行启动容器命令：<br>docker run –net=host –name=socks -t uetty/shadowsocks:server<br>ctrl + c 退出</li>
+<li>进入容器内部：<br>docker exec -it socks bash<br>修改 /etc/shadowsocks.json 文件(vim /etc/shadowsocks.json)：<br>按i键编辑文件<br>设置端口、密码（可设置多对）、以及加密方式(method)<br>保存(依次：ctrl + c  -&gt;  输入:wq  -&gt;  回车)</li>
+<li>在容器内部运行命令：<br>ssserver -c /etc/shadowsocks.json -d start<br>退出容器，先后按下：<br>ctrl + p     ctrl + q<br>在本地电脑使用客户端连接该服务器尝试是否代理成功</li>
+</ol>
+</blockquote>
+<h3 id="关闭代理方式（第二步根据需要选择）"><a href="#关闭代理方式（第二步根据需要选择）" class="headerlink" title="关闭代理方式（第二步根据需要选择）"></a>关闭代理方式（第二步根据需要选择）</h3><blockquote>
+<ol>
+<li>进入容器：<br>docker exec -it socks bash<br>执行停止命令：<br>ssserver -c /etc/shadowsocks.json -d stop</li>
+</ol>
+</blockquote>
+<h3 id="重启服务器后重新启动代理（服务器较少需要重启的情况）"><a href="#重启服务器后重新启动代理（服务器较少需要重启的情况）" class="headerlink" title="重启服务器后重新启动代理（服务器较少需要重启的情况）"></a>重启服务器后重新启动代理（服务器较少需要重启的情况）</h3><blockquote>
+<ol>
+<li>docker start socks</li>
+<li>docker exec -it socks bash</li>
+<li>此时已进入容器中，执行：<br>ssserver -c /etc/shadowsocks.json -d start</li>
+</ol>
+</blockquote>
+<h3 id="尝试使用客户端连接服务器端代理"><a href="#尝试使用客户端连接服务器端代理" class="headerlink" title="尝试使用客户端连接服务器端代理"></a>尝试使用客户端连接服务器端代理</h3><blockquote>
+<p><a href="https://raw.githubusercontent.com/Uetty/uetty.github.io/master/blog/影梭Win.zip" target="_blank" rel="noopener">Windows系统客户端</a></p>
+<p><a href="./2018-09-21_shadowsocks.md">Ubuntu系统客户端教程</a></p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/10/01/shadowsocks-server/" data-id="ck0v87smz000ulwuk1j91o6rv" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-shadowsocks-client" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/09/21/shadowsocks-client/" class="article-date">
+  <time datetime="2018-09-21T15:39:07.000Z" itemprop="datePublished">2018-09-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/21/shadowsocks-client/">shadowsocks docker 镜像实现代理 - 客户端（Ubuntu电脑访问服务器使用代理）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>基于Ubuntu 18.04测试，这里记录的是Ubuntu客户端使用代理的方式，服务端搭建代理服务器的移步<br>docker 安装见 <a href="https://blog.csdn.net/Vincent_Field/article/details/82086197" target="_blank" rel="noopener">https://blog.csdn.net/Vincent_Field/article/details/82086197</a><br>Windows系统的话，已经有现成的软件（<a href="../static/MB18092101-1.zip">影梭Win.zip</a>），该教程也就没有意义了  </p>
+<h2 id="镜像获取"><a href="#镜像获取" class="headerlink" title="镜像获取"></a>镜像获取</h2><hr>
+<p>docker pull uetty/shadowsocks:client</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><hr>
+<h3 id="初次启动"><a href="#初次启动" class="headerlink" title="初次启动"></a>初次启动</h3><blockquote>
+<ol>
+<li>宿主机上运行启动容器命令：<br>docker run –net=host –name=socks -t uetty/shadowsocks:client<br>ctrl + c 退出</li>
+<li>进入容器内部：<br>docker exec -it socks bash<br>修改 /etc/shadowsocks.json 文件(vim /etc/shadowsocks.json)：<br>按i键编辑文件<br>修改服务器地址、端口、密码、以及加密方式(method)<br>保存(依次：ctrl + c  -&gt;  输入:wq  -&gt;  回车)</li>
+<li>在容器内部运行命令：<br>sslocal -c /etc/shadowsocks.json -d start<br>退出容器，先后按下：<br>ctrl + p     ctrl + q</li>
+<li>在宿主机上操作：<br>依次进入：设置 -&gt; 网络 -&gt; 网络代理 -&gt; 手动 -&gt; socks主机那行：<br>主机地址填写： 127.0.0.1 端口填写： 1080 忽略主机行填写（默认值）： localhost, 127.0.0.0/8, ::1<br>关闭设置<br>在浏览器上尝试是否代理成功</li>
+</ol>
+</blockquote>
+<h3 id="关闭代理方式（第二步根据需要选择）"><a href="#关闭代理方式（第二步根据需要选择）" class="headerlink" title="关闭代理方式（第二步根据需要选择）"></a>关闭代理方式（第二步根据需要选择）</h3><blockquote>
+<ol>
+<li><p>将网络代理手动重新改为禁用</p>
+</li>
+<li><p>进入容器：<br>docker exec -it socks bash<br>执行停止命令：<br>sslocal -c /etc/shadowsocks.json -d stop</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="重启电脑后重新启动代理"><a href="#重启电脑后重新启动代理" class="headerlink" title="重启电脑后重新启动代理"></a>重启电脑后重新启动代理</h3><blockquote>
+<ol>
+<li><p>docker start socks</p>
+</li>
+<li><p>docker exec -it socks bash</p>
+</li>
+<li><p>此时已进入容器中，执行：<br>sslocal -c /etc/shadowsocks.json -d start</p>
+</li>
+<li><p>退出容器，设置中设置手动代理</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="命令行下使用代理"><a href="#命令行下使用代理" class="headerlink" title="命令行下使用代理"></a>命令行下使用代理</h3><blockquote>
+<ol>
+<li><p>在宿主机上执行（从container中将已准备好的工具拷贝出来）：<br>docker cp socks:/data/proxychains-ng.tar ~/data/proxychains-ng.tar<br>拷贝出来的位置随意自己决定</p>
+</li>
+<li><p>解压<br>cd ~/data<br>tar xf proxychains-ng.tar</p>
+</li>
+<li><p>安装<br>./configure<br>make<br>sudo make install<br>sudo cp ./src/proxychains.conf /etc/proxychains.conf<br>cd .. &amp;&amp; rm -rf proxychains-ng</p>
+</li>
+<li><p>修改配置<br>sudo vim /etc/proxychains.conf<br>修改最后一行为：<br>socks5 127.0.0.1 1080</p>
+</li>
+<li><p>使用<br>在需要代理的命令前增加：sudo proxychains4<br>如：<br>sudo proxychains4 ping <a href="http://www.docker.com" target="_blank" rel="noopener">www.docker.com</a><br>或<br>sudo proxychains4 -q ping <a href="http://www.docker.com" target="_blank" rel="noopener">www.docker.com</a></p>
+</li>
+</ol>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/09/21/shadowsocks-client/" data-id="ck0v87sn50012lwukzrlf8gc4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis-vulnerability/">redis; vulnerability</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/request/">request</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/redis-vulnerability/" style="font-size: 10px;">redis; vulnerability</a> <a href="/tags/request/" style="font-size: 10px;">request</a> <a href="/tags/spring/" style="font-size: 13.33px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/17/java-garbage-collector/">JAVA垃圾收集器科普</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/10/java-linux-timezone/">Java及Ubuntu操作系统时区错误</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Vince<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

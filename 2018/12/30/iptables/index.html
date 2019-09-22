@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>iptables 笔记 | Vince Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="iptables 笔记结构 iptables命令显示列表：iptables -t filter -L -n      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出  清空设置：iptables -F  阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：iptables -I DOCKER -s 111.">
+<meta name="keywords" content="iptables">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iptables 笔记">
+<meta property="og:url" content="http://uetty.github.io/2018/12/30/iptables/index.html">
+<meta property="og:site_name" content="Vince Blog">
+<meta property="og:description" content="iptables 笔记结构 iptables命令显示列表：iptables -t filter -L -n      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出  清空设置：iptables -F  阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：iptables -I DOCKER -s 111.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://uetty.github.io/2018/12/30/static/MB18123001-1.png">
+<meta property="og:updated_time" content="2019-09-22T16:48:33.664Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iptables 笔记">
+<meta name="twitter:description" content="iptables 笔记结构 iptables命令显示列表：iptables -t filter -L -n      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出  清空设置：iptables -F  阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：iptables -I DOCKER -s 111.">
+<meta name="twitter:image" content="http://uetty.github.io/2018/12/30/static/MB18123001-1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Vince Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="uetty.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-iptables" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/30/iptables/" class="article-date">
+  <time datetime="2018-12-30T08:13:02.000Z" itemprop="datePublished">2018-12-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      iptables 笔记
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="iptables-笔记"><a href="#iptables-笔记" class="headerlink" title="iptables 笔记"></a>iptables 笔记</h1><h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p><img src="../static/MB18123001-1.png" alt="iptables总体"></p>
+<h2 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h2><p>显示列表：<code>iptables -t filter -L -n</code>      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出 </p>
+<p>清空设置：<code>iptables -F</code> </p>
+<p>阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：<code>iptables -I DOCKER -s 111.111.11.11 -d 10.18.139.82 -p TCP --dport 8080 -j DROP</code>  </p>
+<p>添加一条开放端口的规则： <code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code>  -A表示添加规则 </p>
+<p>替换一条规则为开放220端口：<code>iptables -R INPUT 1 -p tcp --dport 220 -j ACCEPT</code> -R表示替换规则，<code>INPUT 1</code>表示INPUT链路的第1条规则，规则行号用<code>iptables -L -n --line-number</code>命令查看 </p>
+<p>插入一条规则：<code>iptables -I INPUT 3 -p tcp --dport 220 -j ACCEPT</code>  -I表示插入规则</p>
+<p>添加一条禁止端口的规则： <code>iptables -A INPUT -p tcp --dport 8080 -j DROP</code> </p>
+<p>删除一条规则：先使用 <code>iptables -L -n --line-number</code> 查看number，之后使用<code>iptables -D INPUT 3</code> 删除number号对应的规则 </p>
+<p>通常设置只通过部分端口的规则需要设置允许换回链路，以及允许主动访问外网时外网的响应流量流入：<code>iptables -A INPUT -i lo -j ACCEPT</code>、<code>iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT</code>，第一条为环回链路，第二条为以连接或程序启动的向外端口允许流入</p>
+<p>设置环回链路规则时，通过<code>iptable -L -n</code>命令看到不到详细信息会误以为通过了全部端口，使用<code>iptables -L -n -v</code>命令看详细信息，才可看到实际规则</p>
+<p>一个规则里设置多个端口：<code>iptables -A INPUT -p tcp -m multiport --destination-ports 22,3306,443,80 -j ACCEPT</code></p>
+<p>命令里设置iptables规则，重启后将失效，通过<code>iptables-save &gt; /root/iptables.conf</code>保存配置到文件里，重启后使用<code>iptables-restore &lt; /root/iptables.conf</code>恢复配置。如果service iptables可以使用，则可以直接用<code>service iptables save</code>保存 </p>
+<h2 id="ip黑名单"><a href="#ip黑名单" class="headerlink" title="ip黑名单"></a>ip黑名单</h2><p>结合使用ipset软件设置ip黑名单</p>
+<p>安装软件：<code>apt-get install ipset</code></p>
+<p>创建名单：<code>ipset create blacklist hash:net</code>    最后的参数还可以是：<code>hash:ip</code>、<code>hash:ip,port</code>等，名单是以hash方式存储的，所以不会怎么影响性能，hash size默认能存储1024个</p>
+<p>创建自动过期的名单：<code>ipset create timoutlist hash:ip timeout 300</code>    300秒后自动过期</p>
+<p>添加ip：<code>ipset add blacklist 1.1.1.1</code></p>
+<p>添加ip地址段：<code>ipset add blacklist 1.1.1.0/24</code> 前24byte的地址匹配</p>
+<p>如果集合是ip,port的形式：<code>ipset add blacklist 1.1.1.1,80</code> 添加1.1.1.1的ip的80端口</p>
+<p>查看列表：<code>ipset list</code></p>
+<p>查看集合内内容：<code>ipset list blacklist</code></p>
+<p>清空所有集合：<code>ipset flush</code></p>
+<p>清空单个集合：<code>ipset flush blacklist</code></p>
+<p>从集合删除内容：<code>ipset del blacklist x.x.x.x</code></p>
+<p>销毁集合：<code>ipset destroy blacklist</code></p>
+<p>使用ipset名单：<code>iptables -A INPUT -m set --match-set blacklist src -p tcp -j DROP</code></p>
+<p>如果是设置不匹配名单添加<code>!</code>符合即可：<code>iptables -A INPUT -m set ! --match-set blacklist src -p tcp -j DROP</code></p>
+<p>保存与恢复：通过<code>ipset save &gt; /root/ipset.conf</code>保存配置到文件里，重使用<code>ipset restore &lt; /root/ipset.conf</code>恢复配置</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2018/12/30/iptables/" data-id="ck0v87sn2000ylwukoh5la436" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/02/09/source-countdownlatch/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CountDownLatch源码阅读
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/12/30/mysql-slave/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">MySQL主从同步配置</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis-vulnerability/">redis; vulnerability</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/request/">request</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/redis-vulnerability/" style="font-size: 10px;">redis; vulnerability</a> <a href="/tags/request/" style="font-size: 10px;">request</a> <a href="/tags/spring/" style="font-size: 13.33px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/17/java-garbage-collector/">JAVA垃圾收集器科普</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/10/java-linux-timezone/">Java及Ubuntu操作系统时区错误</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Vince<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>JAVA垃圾收集器科普 | Vince Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="JAVA垃圾收集器Serial收集器（新生代）垃圾收集时，必须暂停其他所有工作线程（Stop The World)，采用的是复制回收算法，单线程收集 Serial Old搜集器（老年代）Serial收集器的老年代版本 ParNew收集器（新生代）serial收集器的多线程版本，没有太多的提升 Parallel Scavenge收集器（新生代）复制回收算法，并发多线程收集器，特点是与其他关注缩短垃圾">
+<meta name="keywords" content="java, 垃圾收集器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA垃圾收集器科普">
+<meta property="og:url" content="http://uetty.github.io/2019/07/17/java-garbage-collector/index.html">
+<meta property="og:site_name" content="Vince Blog">
+<meta property="og:description" content="JAVA垃圾收集器Serial收集器（新生代）垃圾收集时，必须暂停其他所有工作线程（Stop The World)，采用的是复制回收算法，单线程收集 Serial Old搜集器（老年代）Serial收集器的老年代版本 ParNew收集器（新生代）serial收集器的多线程版本，没有太多的提升 Parallel Scavenge收集器（新生代）复制回收算法，并发多线程收集器，特点是与其他关注缩短垃圾">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:updated_time" content="2019-09-22T16:26:38.406Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JAVA垃圾收集器科普">
+<meta name="twitter:description" content="JAVA垃圾收集器Serial收集器（新生代）垃圾收集时，必须暂停其他所有工作线程（Stop The World)，采用的是复制回收算法，单线程收集 Serial Old搜集器（老年代）Serial收集器的老年代版本 ParNew收集器（新生代）serial收集器的多线程版本，没有太多的提升 Parallel Scavenge收集器（新生代）复制回收算法，并发多线程收集器，特点是与其他关注缩短垃圾">
+  
+    <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Vince Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="uetty.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-java-garbage-collector" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/17/java-garbage-collector/" class="article-date">
+  <time datetime="2019-07-16T20:36:17.000Z" itemprop="datePublished">2019-07-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JAVA垃圾收集器科普
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="JAVA垃圾收集器"><a href="#JAVA垃圾收集器" class="headerlink" title="JAVA垃圾收集器"></a>JAVA垃圾收集器</h1><h2 id="Serial收集器（新生代）"><a href="#Serial收集器（新生代）" class="headerlink" title="Serial收集器（新生代）"></a>Serial收集器（新生代）</h2><p>垃圾收集时，必须暂停其他所有工作线程（Stop The World)，采用的是复制回收算法，单线程收集</p>
+<h2 id="Serial-Old搜集器（老年代）"><a href="#Serial-Old搜集器（老年代）" class="headerlink" title="Serial Old搜集器（老年代）"></a>Serial Old搜集器（老年代）</h2><p>Serial收集器的老年代版本</p>
+<h2 id="ParNew收集器（新生代）"><a href="#ParNew收集器（新生代）" class="headerlink" title="ParNew收集器（新生代）"></a>ParNew收集器（新生代）</h2><p>serial收集器的多线程版本，没有太多的提升</p>
+<h2 id="Parallel-Scavenge收集器（新生代）"><a href="#Parallel-Scavenge收集器（新生代）" class="headerlink" title="Parallel Scavenge收集器（新生代）"></a>Parallel Scavenge收集器（新生代）</h2><p>复制回收算法，并发多线程收集器，特点是与其他关注缩短垃圾收集时停顿时间的收集器的关注点不同，目标是达到可控的吞吐量（=运行用户代码时间/(运行用户代码时间 + 垃圾收集时间)），参数的两种设置方式：</p>
+<ol>
+<li>使用<code>-XX:MaxGCPauseMillis</code>参数，直接制定大于0的毫秒数，收集器将尽可能地保证手机时间不超过设定值。但如果值设定过小，可能导致频繁垃圾回收。</li>
+<li>使用<code>-XX:GCTimeRatio</code>参数，设定值大于0小于100整数，如果设定49，则GC时间占总时间的2%（1 / (1 + 49)），默认值为99.</li>
+</ol>
+<p>另外还有一个常用参数<code>-XX:+UseAdaptiveSizePolicy</code>，是开关参数，设定后无需手工指定新生代、Eden区、Survivor区的比例、晋升老年代年龄（<code>-XX:PretenureSizeThreshold</code>），虚拟机将自动调整这些参数以提供最适合的停顿时间和吞吐量。</p>
+<h2 id="Parallel-Old收集器（老年代）"><a href="#Parallel-Old收集器（老年代）" class="headerlink" title="Parallel Old收集器（老年代）"></a>Parallel Old收集器（老年代）</h2><p>Parallel Scavenge收集器的老年代版本</p>
+<h2 id="CMS收集器（老年代）"><a href="#CMS收集器（老年代）" class="headerlink" title="CMS收集器（老年代）"></a>CMS收集器（老年代）</h2><p>CMS(Concurrent Mark Sweep)收集器，是有较大提升的一个版本，采用的是标记清清理算法，同时是地一个真正意义上的并发收集器，以获取最短回收停顿时间为目标。</p>
+<p>垃圾收集过程分为4个步骤：</p>
+<ol>
+<li>初始标记</li>
+<li>并发标记</li>
+<li>重新标记</li>
+<li>并发清除</li>
+</ol>
+<p>初始标记、重新标记两个步骤仍旧需要”Stop The World”，但这两个阶段都是耗时比较短的阶段。初始标记，只是标记GC Roots能够直接到达的对象，速度很快；并发标记阶段为进行GC Tracing的过程；重新标记阶段为了修正并发标记期间用户程序继续运作而导致的标记变动部分记录，比初始标记阶段时间稍长，但远低于并发标记阶段。</p>
+<p>不足点：</p>
+<ol>
+<li>并发程序的通病，对CPU资源敏感，线程占用资源不可避免的导致程序变慢（吞吐量降低），及线程切换的消耗，默认启动的线程数量（(CPU数量 + 3)  / 4）。</li>
+<li>标记清楚回收算法的常见问题，导致内存空间的碎片，碎片过多大对象分配会带来麻烦，无法找到足够大空间时，不得不提前触发Full GC。参数<code>-XX:+UseCMSCompactAtFullCollection</code>用于在CMS收集器顶不住要FullGC时开启碎片压缩整合（默认即是开启的），但整合过程无法并发。参数<code>-XX:CMSFullGCsBeforeCompaction</code>设置多少次不压缩后执行一次压缩整合（默认值0）</li>
+<li>收集器运行时需要为浮动垃圾（并发搜集阶段用户线程仍在运行而产生的垃圾）预留足够内存空间，浮动垃圾在下一次GC时清理掉，因此不能像其他收集器一样等到几乎被填满时再进行收集。JDK1.5中默认68%空间时收集，JDK1.6中为92%，使用<code>-XX:CMSInitiatingOccupancyFraction</code>参数设置百分比。</li>
+<li>concurrent mark时预留的内存无法满足程序需要，会导致<code>Concurrent Mode Failure</code>失败，这是虚拟机启用后备预案，临时使用Serial Old收集器重新进行老年代的垃圾收集。</li>
+<li>CMS作为老年代收集器，无法与Parallel Scavenge收集器配合使用，只能与Serial收集器或ParNew收集器配合使用</li>
+</ol>
+<h2 id="G1收集器（不再物理性分代）"><a href="#G1收集器（不再物理性分代）" class="headerlink" title="G1收集器（不再物理性分代）"></a>G1收集器（不再物理性分代）</h2><p>最新的收集器，目标替换CMS收集器，仍需要更多的检验。从2004年论文发布起，近10年时间才推出的G1收集器的商用版本，采用化整为零的思路，将Java堆分成多个Region进行管理。但由于对象的引用实现上并没有看起来这么简单，与新生代老年代类似，每个Region区均为此留出了Remembered Set来避免全堆扫描。</p>
+<p>G1收集器运行大致分为4个步骤：</p>
+<ol>
+<li>初始标记</li>
+<li>并发标记</li>
+<li>最终标记</li>
+<li>筛选回收</li>
+</ol>
+<p>4个阶段与CMS收集器相似，在最终标记阶段，将并发阶段写在线程Remembered Set Logs里的标记变动记录合并到Remembered Set中。筛选回收阶段对各个Region回收价值和成本先进行排序，根据用户期望GC停顿时间来制定回收计划。</p>
+<p>G1收集器特点：</p>
+<ol>
+<li>并行与并发，多CPU环境缩短Stop-The-World</li>
+<li>将整个Java堆分成多个大小相等的独立的Region，分代概念仍在G1收集器保留，但新生代和老年代不再是物理隔离的了，它们都是一部分Region的集合</li>
+<li>可以不需要其他收集器配合就能独立管理整个GC堆，并能够采用不同方式处理新创建的和旧的对象</li>
+<li>整体上采用”标记-整理”算法，局部（两个Region之间）基于”复制回收”算法</li>
+<li>一大特色优势点，可预测的停顿。与CMS收集器一样关注降低停顿时间之外，还建立了可预测的停顿时间模型，能让使用者明确指定控制在长度为M的毫秒时间片段内，消耗在垃圾收集上的时间不超过N毫秒。</li>
+</ol>
+<p>可预测的停顿，建立在有计划地避免在整个Java堆中进行全区域垃圾收集，G1跟踪各个Region里的垃圾堆积的价值大小（回收所获得的空间大小以及回收所需时间的经验值），在后台维护一个优先级列表，每次根据允许的收集时间优先回收高价值Region （这也是Garbage-First名称的由来）。</p>
+<p>Sun给出测试结果显示，G1收集器对停顿时间的控制比CMS要更加地稳定可靠得多。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://uetty.github.io/2019/07/17/java-garbage-collector/" data-id="ck0v87sng001llwukov4w13pw" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/29/compare-list-vertor-cowlist/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          ArrayList、Vector、CopyOnWriteArrayList对比
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/10/java-linux-timezone/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Java及Ubuntu操作系统时区错误</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis-vulnerability/">redis; vulnerability</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/request/">request</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/redis-vulnerability/" style="font-size: 10px;">redis; vulnerability</a> <a href="/tags/request/" style="font-size: 10px;">request</a> <a href="/tags/spring/" style="font-size: 13.33px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/17/java-garbage-collector/">JAVA垃圾收集器科普</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/10/java-linux-timezone/">Java及Ubuntu操作系统时区错误</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Vince<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
