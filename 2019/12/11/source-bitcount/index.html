@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>JDK中Integer.bitCount解析 | Vince Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="使用过Redis的人可能知道，Redis中给我们提供了统计二进制位数为1的位数量的指令bitcout，JDK中Integer类同样也给我们提供了该功能的方法Integer.bigCount，得益于此，我们很容易就能一窥该方法的实现 123456789public static int bitCount(int i) &amp;#123;    // HD, Figure 5-2    i = i - ((">
+<meta name="keywords" content="Java, Integer, bitCount">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK中Integer.bitCount解析">
+<meta property="og:url" content="https://www.uetty.com/2019/12/11/source-bitcount/index.html">
+<meta property="og:site_name" content="Vince Blog">
+<meta property="og:description" content="使用过Redis的人可能知道，Redis中给我们提供了统计二进制位数为1的位数量的指令bitcout，JDK中Integer类同样也给我们提供了该功能的方法Integer.bigCount，得益于此，我们很容易就能一窥该方法的实现 123456789public static int bitCount(int i) &amp;#123;    // HD, Figure 5-2    i = i - ((">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:updated_time" content="2019-12-15T15:43:51.171Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDK中Integer.bitCount解析">
+<meta name="twitter:description" content="使用过Redis的人可能知道，Redis中给我们提供了统计二进制位数为1的位数量的指令bitcout，JDK中Integer类同样也给我们提供了该功能的方法Integer.bigCount，得益于此，我们很容易就能一窥该方法的实现 123456789public static int bitCount(int i) &amp;#123;    // HD, Figure 5-2    i = i - ((">
+  
+    <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Vince Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="www.uetty.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-source-bitcount" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/11/source-bitcount/" class="article-date">
+  <time datetime="2019-12-11T11:11:49.000Z" itemprop="datePublished">2019-12-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JDK中Integer.bitCount解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>使用过Redis的人可能知道，Redis中给我们提供了统计二进制位数为1的位数量的指令<code>bitcout</code>，JDK中Integer类同样也给我们提供了该功能的方法<code>Integer.bigCount</code>，得益于此，我们很容易就能一窥该方法的实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static int bitCount(int i) &#123;</span><br><span class="line">    // HD, Figure 5-2</span><br><span class="line">    i = i - ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br><span class="line">    i = (i &amp; 0x33333333) + ((i &gt;&gt;&gt; 2) &amp; 0x33333333);</span><br><span class="line">    i = (i + (i &gt;&gt;&gt; 4)) &amp; 0x0f0f0f0f;</span><br><span class="line">    i = i + (i &gt;&gt;&gt; 8);</span><br><span class="line">    i = i + (i &gt;&gt;&gt; 16);</span><br><span class="line">    return i &amp; 0x3f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码作为Integer类中比较有意思的一个方法，该方法利用了一个技巧：通过分割分配二进制位的方式，CPU可以实现一个指令同时计算多个数值。该方法的前四行都利用了该技巧。</p>
+<p>NOTE：CPU要通过分配字节位的方式同时计算多个数值对，需要有一定的前提：由于每个数分配的字节位的长度有限，这就要求计算结果的二进制表示不能超出分配的位数。在当前问题上，显而易见是成立的：相加的两个数的最大值所占的二进制位数只有分配的二进制位的一半，结果值需要的二进制位必然不会超过分配的二进制位数。</p>
+<h2 id="案例解析"><a href="#案例解析" class="headerlink" title="案例解析"></a>案例解析</h2><p>为了利于问题的解决，对计算二进制位1的数量这个问题，做一个等价转换：计算二进制位上每一位值的和。</p>
+<p>以数字<code>‭1823425321‬</code>为例，二进制数值为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">‭0 1 1 0  1 1 0 0  1 0 1 0  1 1 1 1  0 1 0 0  0 0 1 1  0 0 1 0  1 0 0 1‬</span><br></pre></td></tr></table></figure>
+
+<p><strong>1. 方法第一行</strong></p>
+<p>将二进制的每1位都视为一个单独的数字，从左往右两个两个数字配对，形成16组二进制数相加，得到16个数值（2位二进制）。为了使结果是2位二进制数，相加前还需先给每个数前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">‭0 1  1 0  1 1  0 0  1 0  1 0  1 1  1 1  0 1  0 0  0 0  1 1  0 0  1 0  1 0  0 1‬     </span><br><span class="line">                                      ⇩  </span><br><span class="line">00   01   01   00   01   01   01   01   00   00   00   01   00   01   01   00</span><br><span class="line">                                      +</span><br><span class="line">01   00   01   00   00   00   01   01   01   00   00   01   00   00   00   01</span><br><span class="line">                                      ⇩</span><br><span class="line">01   01   10   00   01   01   10   10   01   00   00   10   00   01   01   01</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x55555555的二进制值是0b_01010101010101010101010101010101）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x55555555) + ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
+
+<p>公式中，<code>i &gt;&gt;&gt; 1</code>将偶数位变为了奇数位，<code>&amp; 0x55555555</code>则清空偶数位，结合起来之后<code>(i &amp; 0x55555555)</code>和<code>((i &gt;&gt;&gt; 1) &amp; 0x55555555)</code>就分别提取了奇数位和偶数位的值，分别以奇偶位为基构建了两组2位二进制数数组，两组数组相加，完成第1步计算。</p>
+<p>认真的可能就会发现，不对啊，代码里分明是减法啊。实际上，第一行代码比较特别，换了一种计算方式，用了另一个公式替代，使得实际运算减少了一个指令。对于二位二进制数n，1的个数c等于<code>c = n - (n &gt;&gt;&gt; 1)</code>（二位二进制数一共就0, 1, 2, 3这四个数，这个公式是很容易就能验证的），所以公式就变为了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i - ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 方法第二行</strong></p>
+<p>将二进制数每2位视为一个单独的数字，从左往右两个两个数字配对，形成8组二进制数相加，得到8个数值（4位二进制）。同样的，为了使结果是4位二进制数，相加前还得给每个数前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">01  01    10  00    01  01    10  10    01  00    00  10    00  01    01   01</span><br><span class="line">                                     ⇩  </span><br><span class="line">0001      0010      0001      0010      0001      0000      0000      0001</span><br><span class="line">                                     +</span><br><span class="line">0001      0000      0001      0010      0000      0010      0001      0001</span><br><span class="line">                                     ⇩</span><br><span class="line">0010      0010      0010      0100      0001      0010      0001      0010</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x33333333的二进制值是0b_0011001100110011001100110011‬0011）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x33333333) + ((i &gt;&gt;&gt; 2) &amp; 0x33333333);</span><br></pre></td></tr></table></figure>
+
+<p>同样的，公式中，通过<code>(i&gt;&gt;&gt;2) &amp; 0x33333333</code>和<code>i &amp; 0x33333333</code>将<code>i</code>分为了相加的两部分，<code>0x33333333</code>起到了清空高2位数据的作用</p>
+<p><strong>3. 方法第三行</strong></p>
+<p>将二进制数的每4位视为一个单独的数字，从左往右两个两个数字配对，形成4组二进制数相加，得到4个数值（8位二进制）。同上所述，前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0010   0010   0010   0100   0001   0010   0001   0010</span><br><span class="line">                          ⇩</span><br><span class="line">00000010      00000010      00000001      00000001</span><br><span class="line">                          +</span><br><span class="line">00000010      00000100      00000010      00000010</span><br><span class="line">                          ⇩</span><br><span class="line">00000100      00000110      00000011      00000011</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x0f0f0f0f的二进制值是0b_00001111000011110000111100001111‬）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x0f0f0f0f) + ((i &gt;&gt;&gt; 4) &amp; 0x0f0f0f0f);</span><br></pre></td></tr></table></figure>
+
+<p>在8位二进制数中，值为1的位数最大为8，仅需4个二进制位就能表示（PS：实际上，由<code>n &lt; 2 ^ (n / 2)</code>在<code>n &gt; 4</code>时均成立，可以得出：在n大于4时，n位二进制数的值为1的位数值m，只需不超过<code>n / 2</code>个二进制位即可表示）。这意味着相加后的结果值也不会超过4个二进制位，所以在计算中可以先不考虑高4位会对结果造成影响，清空高4位值的计算<code>&amp; 0x0f0f0f0f</code>可以在加法完成之后再进行，代码就可以简化成如下所示代码（比原来的代码少了一个指令）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i + (i &gt;&gt;&gt; 4)) &amp; 0x0f0f0f0f;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 方法第四行</strong></p>
+<p>与前面一样，每8位视为一个单独的数字数字，相加之后得到2个16位二进制数值。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">00000100    00000110     00000011    00000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000000100         0000000000000011</span><br><span class="line">                      +</span><br><span class="line">0000000000000110         0000000000000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000001010         0000000000000110</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x00ff00ff的二进制值是0b_00000000111111110000000011111111)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x00ff00ff) + ((i &gt;&gt;&gt; 8) &amp; 0x00ff00ff);</span><br></pre></td></tr></table></figure>
+
+<p>同理于第3步，加法计算中也可以先不用担心高8位对结果造成的影响直接计算即可，代码优化为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i + (i &gt;&gt;&gt; 8)) &amp; 0x00ff00ff;</span><br></pre></td></tr></table></figure>
+
+<p>此外，<strong>对于32位的<code>Integer</code>，值为1的位数最大为32，也就是说最终结果仅需6个二进制位即可表示</strong>。而当前每个加数都已经达到8个二进制位，这种情况下，相加后的和的高8位的值即使不清空也不会影响最终结果的低6位的值。所以，可以<strong>将高位清空的任务留到所有计算完成后一并处理</strong>，省略<code>&amp; 0x00ff00ff</code>后代码简化为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i + (i &gt;&gt;&gt; 8);</span><br></pre></td></tr></table></figure>
+
+<p>而省略<code>&amp; 0x00ff00ff</code>后实际的计算过程是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">00000100    00000110     00000011    00000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000000100         0000011000000011</span><br><span class="line">                      +</span><br><span class="line">0000010000000110         0000001100000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000010000001010         0000100100000110</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 方法第五行</strong></p>
+<p>同理于第4步，计算过程如下（以第4步中理论结果值为例）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0000000000001010         0000000000000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000000000000000000000000001010</span><br><span class="line">                    +</span><br><span class="line">00000000000000000000000000000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000000000000000000000000010000</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x0000ffff的二进制值是0b_00000000000000001111111111111111)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x0000ffff) + ((i &gt;&gt;&gt; 16) &amp; 0x0000ffff);</span><br></pre></td></tr></table></figure>
+
+<p>同理于第4步的优化，优化后代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i + (i &gt;&gt;&gt; 16);</span><br></pre></td></tr></table></figure>
+
+<p>同第4步一样的，贴出实际的计算过程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0000010000001010         0000100100000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000100000010100000100100000110</span><br><span class="line">                    +</span><br><span class="line">00000000000000000000010000001010</span><br><span class="line">                    ⇩</span><br><span class="line">00000100000010100000110100010000</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 方法第六行</strong></p>
+<p>前面第4步说过，为了精简代码的指令，将高位清空的任务留到所有计算完成后一并处理。在第4步和第5步中均遗留了未处理的高位数据，所以第6步将完成前面未完成的高位清空工作。第4步中已经分析过了，最终结果仅需6个二进制位即可表示，所以最后清空高26位的数据，计算过程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">00000100000010100000110100010000</span><br><span class="line">                ⇩</span><br><span class="line">00000000000000000000000000010000</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x0000003f的二进制值是0b_00000000000000000000000000111111）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i &amp; 0x0000003f;</span><br></pre></td></tr></table></figure>
+
+<p>所以最终的结果是<code>0b_10000</code>即16</p>
+<p>可以看出来，<code>Integer.bitCount</code>方法在代码所耗费的指令上已经作了极尽的优化。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.uetty.com/2019/12/11/source-bitcount/" data-id="ck476pqnf0000tgukz1pv505u" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/11/25/linux-cgroup-cpu/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux限制进程CPU上限</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 17.5px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 12.5px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
+          </li>
+        
+          <li>
+            <a href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Vince<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

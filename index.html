@@ -62,21 +62,143 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2019-11-25_Linux_Cgroup" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-source-bitcount" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/11/29/2019-11-25_Linux_Cgroup/" class="article-date">
-  <time datetime="2019-11-29T06:20:43.493Z" itemprop="datePublished">2019-11-29</time>
+    <a href="/2019/12/11/source-bitcount/" class="article-date">
+  <time datetime="2019-12-11T11:11:49.000Z" itemprop="datePublished">2019-12-11</time>
 </a>
     
   </div>
   <div class="article-inner">
     
     
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
+    </h1>
+  
+
+      </header>
+    
     <div class="article-entry" itemprop="articleBody">
       
-        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">title: Linux限制进程CPU上限</span><br><span class="line">date: 2019-11-25 19:20:11</span><br><span class="line">tags: linux</span><br><span class="line">permalink: linux-cgroup-cpu</span><br><span class="line">keywords: linux, 限制cpu使用率</span><br><span class="line">rId: MB-19112501</span><br></pre></td></tr></table></figure>
+        <p>使用过Redis的人可能知道，Redis中给我们提供了统计二进制位数为1的位数量的指令<code>bitcout</code>，JDK中Integer类同样也给我们提供了该功能的方法<code>Integer.bigCount</code>，得益于此，我们很容易就能一窥该方法的实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static int bitCount(int i) &#123;</span><br><span class="line">    // HD, Figure 5-2</span><br><span class="line">    i = i - ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br><span class="line">    i = (i &amp; 0x33333333) + ((i &gt;&gt;&gt; 2) &amp; 0x33333333);</span><br><span class="line">    i = (i + (i &gt;&gt;&gt; 4)) &amp; 0x0f0f0f0f;</span><br><span class="line">    i = i + (i &gt;&gt;&gt; 8);</span><br><span class="line">    i = i + (i &gt;&gt;&gt; 16);</span><br><span class="line">    return i &amp; 0x3f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>要实现linux限制进程上限的功能，需要用到Cgroups技术，它的全程Linux Control Group，用于限制一个进程组能够使用的资源（CPU、内存、磁盘、网络带宽）上限，还能够对进程进行优先级设置，以及进行将进程挂起恢复的操作。</p>
+<p>上述代码作为Integer类中比较有意思的一个方法，该方法利用了一个技巧：通过分割分配二进制位的方式，CPU可以实现一个指令同时计算多个数值。该方法的前四行都利用了该技巧。</p>
+<p>NOTE：CPU要通过分配字节位的方式同时计算多个数值对，需要有一定的前提：由于每个数分配的字节位的长度有限，这就要求计算结果的二进制表示不能超出分配的位数。在当前问题上，显而易见是成立的：相加的两个数的最大值所占的二进制位数只有分配的二进制位的一半，结果值需要的二进制位必然不会超过分配的二进制位数。</p>
+<h2 id="案例解析"><a href="#案例解析" class="headerlink" title="案例解析"></a>案例解析</h2><p>为了利于问题的解决，对计算二进制位1的数量这个问题，做一个等价转换：计算二进制位上每一位值的和。</p>
+<p>以数字<code>‭1823425321‬</code>为例，二进制数值为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">‭0 1 1 0  1 1 0 0  1 0 1 0  1 1 1 1  0 1 0 0  0 0 1 1  0 0 1 0  1 0 0 1‬</span><br></pre></td></tr></table></figure>
+
+<p><strong>1. 方法第一行</strong></p>
+<p>将二进制的每1位都视为一个单独的数字，从左往右两个两个数字配对，形成16组二进制数相加，得到16个数值（2位二进制）。为了使结果是2位二进制数，相加前还需先给每个数前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">‭0 1  1 0  1 1  0 0  1 0  1 0  1 1  1 1  0 1  0 0  0 0  1 1  0 0  1 0  1 0  0 1‬     </span><br><span class="line">                                      ⇩  </span><br><span class="line">00   01   01   00   01   01   01   01   00   00   00   01   00   01   01   00</span><br><span class="line">                                      +</span><br><span class="line">01   00   01   00   00   00   01   01   01   00   00   01   00   00   00   01</span><br><span class="line">                                      ⇩</span><br><span class="line">01   01   10   00   01   01   10   10   01   00   00   10   00   01   01   01</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x55555555的二进制值是0b_01010101010101010101010101010101）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x55555555) + ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
+
+<p>公式中，<code>i &gt;&gt;&gt; 1</code>将偶数位变为了奇数位，<code>&amp; 0x55555555</code>则清空偶数位，结合起来之后<code>(i &amp; 0x55555555)</code>和<code>((i &gt;&gt;&gt; 1) &amp; 0x55555555)</code>就分别提取了奇数位和偶数位的值，分别以奇偶位为基构建了两组2位二进制数数组，两组数组相加，完成第1步计算。</p>
+<p>认真的可能就会发现，不对啊，代码里分明是减法啊。实际上，第一行代码比较特别，换了一种计算方式，用了另一个公式替代，使得实际运算减少了一个指令。对于二位二进制数n，1的个数c等于<code>c = n - (n &gt;&gt;&gt; 1)</code>（二位二进制数一共就0, 1, 2, 3这四个数，这个公式是很容易就能验证的），所以公式就变为了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i - ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 方法第二行</strong></p>
+<p>将二进制数每2位视为一个单独的数字，从左往右两个两个数字配对，形成8组二进制数相加，得到8个数值（4位二进制）。同样的，为了使结果是4位二进制数，相加前还得给每个数前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">01  01    10  00    01  01    10  10    01  00    00  10    00  01    01   01</span><br><span class="line">                                     ⇩  </span><br><span class="line">0001      0010      0001      0010      0001      0000      0000      0001</span><br><span class="line">                                     +</span><br><span class="line">0001      0000      0001      0010      0000      0010      0001      0001</span><br><span class="line">                                     ⇩</span><br><span class="line">0010      0010      0010      0100      0001      0010      0001      0010</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x33333333的二进制值是0b_0011001100110011001100110011‬0011）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x33333333) + ((i &gt;&gt;&gt; 2) &amp; 0x33333333);</span><br></pre></td></tr></table></figure>
+
+<p>同样的，公式中，通过<code>(i&gt;&gt;&gt;2) &amp; 0x33333333</code>和<code>i &amp; 0x33333333</code>将<code>i</code>分为了相加的两部分，<code>0x33333333</code>起到了清空高2位数据的作用</p>
+<p><strong>3. 方法第三行</strong></p>
+<p>将二进制数的每4位视为一个单独的数字，从左往右两个两个数字配对，形成4组二进制数相加，得到4个数值（8位二进制）。同上所述，前面补零。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0010   0010   0010   0100   0001   0010   0001   0010</span><br><span class="line">                          ⇩</span><br><span class="line">00000010      00000010      00000001      00000001</span><br><span class="line">                          +</span><br><span class="line">00000010      00000100      00000010      00000010</span><br><span class="line">                          ⇩</span><br><span class="line">00000100      00000110      00000011      00000011</span><br></pre></td></tr></table></figure>
+
+<p>上述计算过程用代码表示如下（0x0f0f0f0f的二进制值是0b_00001111000011110000111100001111‬）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x0f0f0f0f) + ((i &gt;&gt;&gt; 4) &amp; 0x0f0f0f0f);</span><br></pre></td></tr></table></figure>
+
+<p>在8位二进制数中，值为1的位数最大为8，仅需4个二进制位就能表示（PS：实际上，由<code>n &lt; 2 ^ (n / 2)</code>在<code>n &gt; 4</code>时均成立，可以得出：在n大于4时，n位二进制数的值为1的位数值m，只需不超过<code>n / 2</code>个二进制位即可表示）。这意味着相加后的结果值也不会超过4个二进制位，所以在计算中可以先不考虑高4位会对结果造成影响，清空高4位值的计算<code>&amp; 0x0f0f0f0f</code>可以在加法完成之后再进行，代码就可以简化成如下所示代码（比原来的代码少了一个指令）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i + (i &gt;&gt;&gt; 4)) &amp; 0x0f0f0f0f;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 方法第四行</strong></p>
+<p>与前面一样，每8位视为一个单独的数字数字，相加之后得到2个16位二进制数值。计算过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">00000100    00000110     00000011    00000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000000100         0000000000000011</span><br><span class="line">                      +</span><br><span class="line">0000000000000110         0000000000000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000001010         0000000000000110</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x00ff00ff的二进制值是0b_00000000111111110000000011111111)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x00ff00ff) + ((i &gt;&gt;&gt; 8) &amp; 0x00ff00ff);</span><br></pre></td></tr></table></figure>
+
+<p>同理于第3步，加法计算中也可以先不用担心高8位对结果造成的影响直接计算即可，代码优化为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i + (i &gt;&gt;&gt; 8)) &amp; 0x00ff00ff;</span><br></pre></td></tr></table></figure>
+
+<p>此外，<strong>对于32位的<code>Integer</code>，值为1的位数最大为32，也就是说最终结果仅需6个二进制位即可表示</strong>。而当前每个加数都已经达到8个二进制位，这种情况下，相加后的和的高8位的值即使不清空也不会影响最终结果的低6位的值。所以，可以<strong>将高位清空的任务留到所有计算完成后一并处理</strong>，省略<code>&amp; 0x00ff00ff</code>后代码简化为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i + (i &gt;&gt;&gt; 8);</span><br></pre></td></tr></table></figure>
+
+<p>而省略<code>&amp; 0x00ff00ff</code>后实际的计算过程是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">00000100    00000110     00000011    00000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000000000000100         0000011000000011</span><br><span class="line">                      +</span><br><span class="line">0000010000000110         0000001100000011</span><br><span class="line">                      ⇩</span><br><span class="line">0000010000001010         0000100100000110</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 方法第五行</strong></p>
+<p>同理于第4步，计算过程如下（以第4步中理论结果值为例）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0000000000001010         0000000000000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000000000000000000000000001010</span><br><span class="line">                    +</span><br><span class="line">00000000000000000000000000000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000000000000000000000000010000</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x0000ffff的二进制值是0b_00000000000000001111111111111111)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x0000ffff) + ((i &gt;&gt;&gt; 16) &amp; 0x0000ffff);</span><br></pre></td></tr></table></figure>
+
+<p>同理于第4步的优化，优化后代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i + (i &gt;&gt;&gt; 16);</span><br></pre></td></tr></table></figure>
+
+<p>同第4步一样的，贴出实际的计算过程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0000010000001010         0000100100000110</span><br><span class="line">                    ⇩</span><br><span class="line">00000100000010100000100100000110</span><br><span class="line">                    +</span><br><span class="line">00000000000000000000010000001010</span><br><span class="line">                    ⇩</span><br><span class="line">00000100000010100000110100010000</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 方法第六行</strong></p>
+<p>前面第4步说过，为了精简代码的指令，将高位清空的任务留到所有计算完成后一并处理。在第4步和第5步中均遗留了未处理的高位数据，所以第6步将完成前面未完成的高位清空工作。第4步中已经分析过了，最终结果仅需6个二进制位即可表示，所以最后清空高26位的数据，计算过程如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">00000100000010100000110100010000</span><br><span class="line">                ⇩</span><br><span class="line">00000000000000000000000000010000</span><br></pre></td></tr></table></figure>
+
+<p>代码表示如下（0x0000003f的二进制值是0b_00000000000000000000000000111111）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i &amp; 0x0000003f;</span><br></pre></td></tr></table></figure>
+
+<p>所以最终的结果是<code>0b_10000</code>即16</p>
+<p>可以看出来，<code>Integer.bitCount</code>方法在代码所耗费的指令上已经作了极尽的优化。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.uetty.com/2019/12/11/source-bitcount/" data-id="ck476pqnf0000tgukz1pv505u" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-linux-cgroup-cpu" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/25/linux-cgroup-cpu/" class="article-date">
+  <time datetime="2019-11-25T11:20:11.000Z" itemprop="datePublished">2019-11-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>要实现linux限制进程上限的功能，需要用到Cgroups技术，它的全程Linux Control Group，用于限制一个进程组能够使用的资源（CPU、内存、磁盘、网络带宽）上限，还能够对进程进行优先级设置，以及进行将进程挂起恢复的操作。</p>
 <p>Cgroups给用户暴露出来的操作接口是文件系统，以目录和文件的方式组织在<code>/sys/fs/cgroup</code>路径下。</p>
 <p>执行<code>ls /sys/fs/cgroup</code>命令可以看到如下文件列表</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:$ ls /sys/fs/cgroup</span><br><span class="line">blkio  cpuacct      cpuset   freezer  memory   net_cls,net_prio  perf_event  rdma     unified</span><br><span class="line">cpu    cpu,cpuacct  devices  hugetlb  net_cls  net_prio          pids        systemd</span><br></pre></td></tr></table></figure>
@@ -121,9 +243,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/11/29/2019-11-25_Linux_Cgroup/" data-id="ck3jtblgh0020qsuo3sttlidd" class="article-share-link">Share</a>
+      <a data-url="https://www.uetty.com/2019/11/25/linux-cgroup-cpu/" data-id="ck3jtblgh0020qsuo3sttlidd" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
     </footer>
   </div>
   
@@ -927,129 +1051,6 @@
 
 
   
-    <article id="post-idea-prefer" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/18/idea-prefer/" class="article-date">
-  <time datetime="2019-05-18T02:32:33.000Z" itemprop="datePublished">2019-05-18</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/18/idea-prefer/">IDEA常用习惯偏好设置</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="快捷键偏好设置"><a href="#快捷键偏好设置" class="headerlink" title="快捷键偏好设置"></a>快捷键偏好设置</h2><ol>
-<li><p>查找(Keymap -&gt; Main Menu -&gt; Edit -&gt; Find -&gt; Find…) ：Ctrl + F    【速记：find】 </p>
-</li>
-<li><p>复制上一行到下一行(Keymap -&gt; Edit Actions -&gt; Duplicate Entire Lines) ： Ctrl + 向下箭头 </p>
-</li>
-<li><p>移动代码到上一行(Keymap -&gt; Main Menu -&gt; Code -&gt; Move Statement Up) ： Alt + 向上箭头 </p>
-</li>
-<li><p>移动代码到下一行(Keymap -&gt; Main Menu -&gt; Code -&gt; Move Statement Down) ： Alt + 向下箭头 </p>
-</li>
-<li><p>删除一行(Keymap -&gt; Editor Actions -&gt; Delete Line) ： Ctrl + D    【速记：delete】 </p>
-</li>
-<li><p>调出代码提示(Keymap -&gt; Main Menu -&gt; Code -&gt; Completion -&gt; Basic) ： Alt + / </p>
-</li>
-<li><p>自动补全返回变量(Keymap -&gt; Main Menu -&gt; Refactor -&gt; Extract -&gt; Variable…) ： Alt + Enter </p>
-</li>
-<li><p>显示代码在哪里被使用(Keymap -&gt; Main Menu -&gt; Edit -&gt; Find -&gt; Find Usages) ： Ctrl + U     【速记：Usage】 </p>
-</li>
-<li><p>代码格式化(Keymap -&gt; Main Menu -&gt; Code -&gt; Reformat Code) ：Ctrl + Shift + F    【速记：format】 </p>
-</li>
-<li><p>重命名(Keymap -&gt; Main Menu -&gt; Refactor -&gt; Rename…) ： Alt + Shift + R    【速记：refact】 </p>
-</li>
-<li><p>全局查找(Keymap -&gt; Main Menu -&gt; Edit -&gt; Find -&gt; Find in Path…)：Ctrl + P    【速记：path】 </p>
-</li>
-<li><p>返回或前进到上次光标所在处(Keymap -&gt; Main Menu -&gt; Navigate -&gt; Back / Forward)：Alt + 向左箭头/向右箭头</p>
-</li>
-<li><p>显示层级关系(Keymap -&gt; Main Menu -&gt; Navigate -&gt; Type Hierarchy)：Ctrl + H    【速记：hierarchy】 </p>
-</li>
-<li><p>定位到继承代码(Keymap -&gt; Main Menu -&gt; Navigate -&gt; Implementation(s))：Ctrl + Alt + Button1 Click</p>
-</li>
-<li><p>定位到声明代码(Keymap -&gt; Main Menu -&gt; Navigate -&gt; Declaration)：Ctrl + Button1 Click</p>
-</li>
-<li><p>删除Java文件不用的依赖(Keymap -&gt; Main Menu -&gt; Code -&gt; Optimize Imports)：Ctrl + Shift + O</p>
-</li>
-<li><p>显示参数列表(Keymap  -&gt; Main Menu -&gt; View -&gt; Parameter Info)：Alt + P    【速记：parameter】 </p>
-</li>
-<li><p>取消双击shift更改为其他键(双击shift -&gt; Actions)：输入registry… &gt;&gt; 其后选择点击<code>registry...</code>项 &gt;&gt; 找到<code>ide.suppress.double.click.handler</code>键名，右边打勾禁止双击shift处理 &gt;&gt; close &gt;&gt; 设置新快捷键(File =&gt; Settings… -&gt; Keymap -&gt; Other -&gt; Search Everywhere不是文件夹项)：Ctrl + W    【速记：watch或where】 </p>
-</li>
-</ol>
-<p>CTRL为基础组合键，与ALT相关的组合键通常是代码修改的辅助有关</p>
-<h2 id="其他偏好设置"><a href="#其他偏好设置" class="headerlink" title="其他偏好设置"></a>其他偏好设置</h2><ol>
-<li><p>鼠标悬浮方法显示文档(Editor -&gt; General =&gt; Show quick documentation on mouse move) ：打勾 </p>
-</li>
-<li><p>自动为Java文件添加明确的导入依赖(Editor -&gt; General -&gt; Auto Import =&gt; Add unambiguous imports on the fly)：打勾</p>
-</li>
-<li><p>自动补全中显示字段名称提示(Editor -&gt; General -&gt; Code Completion =&gt; Parameter =&gt; Show parameter name hints on completion)：打勾</p>
-</li>
-<li><p>方法常量变量显示参数名称提示(Editor -&gt; General -&gt; Appearance =&gt; Show parameter name hints)：打勾 &gt;&gt; 点开右边Configure配置页面，Language选Java，Do not开头的取消打勾，Show开头的打勾</p>
-</li>
-<li><p>显示链式调用方法的参数提示(Editor -&gt; General -&gt; Appearance =&gt; Show chain call type hints)：打勾</p>
-</li>
-<li><p>自动提示中显示文档（与参数列表择一足矣）(Editor-&gt; General -&gt; Code Completion =&gt; Show the Documentation popup in 1000 ms)：打勾</p>
-</li>
-<li><p>代码字体大小调大到14(Editor -&gt; Font -&gt; Size)</p>
-</li>
-<li><p>Idea插件：CodeGlance（缩略图）、Rainbow Brackets（彩色括号）</p>
-</li>
-<li><p>新项目默认编码设置(File =&gt; Other Settings =&gt; Settings for New Projects… -&gt; Editor -&gt; File Encodings =&gt; Global Encoding和Project Encoding)：UTF-8        [已创建的项目，在File =&gt; Project Structure…设置]</p>
-</li>
-<li><p>新项目默认JDK设置(File =&gt; Other Settings =&gt; Structure for New Projects… -&gt; Project Settings -&gt; Platform Settings)：点击加号添加jdk，其后 &gt;&gt;  设置版本(Project Settings -&gt; Project =&gt; Project SDK)：选择环境及默认版本级别        [已创建的项目，在File =&gt; Project Structure…设置]</p>
-</li>
-<li><p>行代码显示最后提交信息[Other Settings -&gt; Git ToolBox Global =&gt; General -&gt; Show editor inline ‘Blame’]：打勾</p>
-</li>
-<li><p>方法之间显示分割线[Editor -&gt; General -&gt; Appearance =&gt; Show method separator]：打勾</p>
-</li>
-<li><p>文件头注释模板：File Header(Editor -&gt; File and Code Templates -&gt; Includes -&gt; File Header)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @Author: Vince</span><br><span class="line"> * @Date: $&#123;DATE&#125; $&#123;TIME&#125;</span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过特殊字符触发的方法注释模板(Editor -&gt; Live Templates)：右边加号新加一个Template Group与Live Template</p>
-<p><img src="../static/MB19051801-1.png" alt="MB19051801-1"></p>
-<p>Abbreviation框填入<code>*</code>，Expand with选择回车，TemplateText填入生成的字符串</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*</span><br><span class="line"> * </span><br><span class="line">$PARAM$</span><br><span class="line"> * @return : $RETURN$</span><br><span class="line"> * @author : Vince</span><br><span class="line"> * @date : $DATE$ $TIME$</span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
-
-<p>字符串中包含<code>$PARAM$</code>、<code>$RETURN$</code>、<code>$DATE$</code>、<code>$TIME$</code>等变量，点击<code>Edit variables</code>编辑变量如下</p>
-<p><img src="../static/MB19051801-2.png" alt="MB19051801-2"></p>
-<p>其中PARAM使用groovy脚本添加参数</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groovyScript(&quot;def result=&apos;&apos;; def params=\&quot;$&#123;_1&#125;\&quot;.replaceAll(&apos;[\\\\[|\\\\]|\\\\s]&apos;, &apos;&apos;).split(&apos;,&apos;).toList(); for(i = 0; i &lt; params.size(); i++) &#123;result+=&apos; * @param &apos; + params[i] + ((i &lt; params.size() - 1) ? &apos;\\n&apos;:&apos;&apos;)&#125;; return result&quot;, methodParameters())</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>File =&gt; Settings… =&gt; Keymap页面中：输入框输入用于匹配文字，输入框右侧按钮用于匹配快捷键，修改快捷键时，点击修改项，悬浮框中可选择设置键盘快捷键触发、设置鼠标配合Ctrl等键触发、缩写触发</p>
-<h2 id="快捷键配置导入导出"><a href="#快捷键配置导入导出" class="headerlink" title="快捷键配置导入导出"></a>快捷键配置导入导出</h2><p>快捷键配置文件位置<a href="../static/MB19051801-1.xml">快捷键配置</a></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Linux：~/.IdeaIC2019.1/config/keymaps/</span><br><span class="line">Windows：C:\Users\Administrator/.IdeaIC2019.1/config/keymaps/</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/05/18/idea-prefer/" data-id="ck3jtblfv001kqsuoo5q2i2uv" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IDE/">IDE</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1087,7 +1088,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
     </div>
   </div>
 
@@ -1100,7 +1101,11 @@
       <ul>
         
           <li>
-            <a href="/2019/11/29/2019-11-25_Linux_Cgroup/">(no title)</a>
+            <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
+          </li>
+        
+          <li>
+            <a href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
           </li>
         
           <li>
@@ -1113,10 +1118,6 @@
         
           <li>
             <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/17/java-garbage-collector/">JAVA垃圾收集器科普</a>
           </li>
         
       </ul>
