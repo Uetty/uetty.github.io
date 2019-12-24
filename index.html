@@ -101,7 +101,10 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = (i &amp; 0x55555555) + ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
 
 <p>公式中，<code>i &gt;&gt;&gt; 1</code>将偶数位变为了奇数位，<code>&amp; 0x55555555</code>则清空偶数位，结合起来之后<code>(i &amp; 0x55555555)</code>和<code>((i &gt;&gt;&gt; 1) &amp; 0x55555555)</code>就分别提取了奇数位和偶数位的值，分别以奇偶位为基构建了两组2位二进制数数组，两组数组相加，完成第1步计算。</p>
-<p>认真的可能就会发现，不对啊，代码里分明是减法啊。实际上，第一行代码比较特别，换了一种计算方式，用了另一个公式替代，使得实际运算减少了一个指令。对于二位二进制数n，1的个数c等于<code>c = n - (n &gt;&gt;&gt; 1)</code>（二位二进制数一共就0, 1, 2, 3这四个数，这个公式是很容易就能验证的），所以公式就变为了</p>
+<p>认真的可能就会发现，不对啊，代码里分明是减法啊。实际上，第一行代码，用了另一个公式替代：对于2位二进制数n，1的个数c可用公式<code>c = n - (n &gt;&gt;&gt; 1)</code>计算得到。这个公式也很容易证明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">假设：2位二进制n = b1 * (2 ^ 1) + b0 * (2 ^ 0)，显然b1是n的第2位数，b0是n的第1位数</span><br><span class="line">那么：所证问题等价于证明 b1 + b0 = n - b1</span><br><span class="line">因为</span><br><span class="line">    n - b1 = b1 * (2 ^ 1) + b0 * (2 ^ 0) - b1</span><br><span class="line">           = b1 * 2 + b0 - b1</span><br><span class="line">           = b1 + b0</span><br><span class="line">所以问题得证</span><br></pre></td></tr></table></figure>
+
+<p>新的公式的代码在计算指令上比旧的代码减少了一个指令。所以新的代码就变为了</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i = i - ((i &gt;&gt;&gt; 1) &amp; 0x55555555);</span><br></pre></td></tr></table></figure>
 
 <p><strong>2. 方法第二行</strong></p>
