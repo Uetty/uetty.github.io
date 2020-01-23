@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Vince Blog">
-<meta property="og:url" content="https://www.uetty.com/page/3/index.html">
+<meta property="og:url" content="https://page.uetty.com/page/3/index.html">
 <meta property="og:site_name" content="Vince Blog">
 <meta property="og:locale" content="zh_CN">
 <meta name="twitter:card" content="summary">
@@ -54,13 +54,78 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="www.uetty.com"></form>
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="page.uetty.com"></form>
       </div>
     </div>
   </div>
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-shadowsocks-server" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/10/01/shadowsocks-server/" class="article-date">
+  <time datetime="2018-10-01T06:12:30.000Z" itemprop="datePublished">2018-10-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/10/01/shadowsocks-server/">shadowsocks docker 镜像实现代理 - 服务端（搭建代理服务器）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>基于Ubuntu 18.04 / Ubuntu 16.04测试，这里记录的是代理服务器的搭建，需要有一台境外的linux(各种发行版本的都行，只要能安装docker)服务器<br>docker 安装见 <a href="https://blog.csdn.net/Vincent_Field/article/details/82086197" target="_blank" rel="noopener">https://blog.csdn.net/Vincent_Field/article/details/82086197</a></p>
+<h2 id="镜像获取"><a href="#镜像获取" class="headerlink" title="镜像获取"></a>镜像获取</h2><hr>
+<p>docker pull uetty/shadowsocks:server</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><hr>
+<h3 id="初次启动"><a href="#初次启动" class="headerlink" title="初次启动"></a>初次启动</h3><blockquote>
+<ol>
+<li>宿主机上运行启动容器命令：<br>docker run –net=host –name=socks -t uetty/shadowsocks:server<br>ctrl + c 退出</li>
+<li>进入容器内部：<br>docker exec -it socks bash<br>修改 /etc/shadowsocks.json 文件(vim /etc/shadowsocks.json)：<br>按i键编辑文件<br>设置端口、密码（可设置多对）、以及加密方式(method)<br>保存(依次：ctrl + c  -&gt;  输入:wq  -&gt;  回车)</li>
+<li>在容器内部运行命令：<br>ssserver -c /etc/shadowsocks.json -d start<br>退出容器，先后按下：<br>ctrl + p     ctrl + q<br>在本地电脑使用客户端连接该服务器尝试是否代理成功</li>
+</ol>
+</blockquote>
+<h3 id="关闭代理方式（第二步根据需要选择）"><a href="#关闭代理方式（第二步根据需要选择）" class="headerlink" title="关闭代理方式（第二步根据需要选择）"></a>关闭代理方式（第二步根据需要选择）</h3><blockquote>
+<ol>
+<li>进入容器：<br>docker exec -it socks bash<br>执行停止命令：<br>ssserver -c /etc/shadowsocks.json -d stop</li>
+</ol>
+</blockquote>
+<h3 id="重启服务器后重新启动代理（服务器较少需要重启的情况）"><a href="#重启服务器后重新启动代理（服务器较少需要重启的情况）" class="headerlink" title="重启服务器后重新启动代理（服务器较少需要重启的情况）"></a>重启服务器后重新启动代理（服务器较少需要重启的情况）</h3><blockquote>
+<ol>
+<li>docker start socks</li>
+<li>docker exec -it socks bash</li>
+<li>此时已进入容器中，执行：<br>ssserver -c /etc/shadowsocks.json -d start</li>
+</ol>
+</blockquote>
+<h3 id="尝试使用客户端连接服务器端代理"><a href="#尝试使用客户端连接服务器端代理" class="headerlink" title="尝试使用客户端连接服务器端代理"></a>尝试使用客户端连接服务器端代理</h3><blockquote>
+<p><a href="https://raw.githubusercontent.com/Uetty/uetty.github.io/master/blog/影梭Win.zip" target="_blank" rel="noopener">Windows系统客户端</a></p>
+<p><a href="./2018-09-21_shadowsocks.md">Ubuntu系统客户端教程</a></p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://page.uetty.com/2018/10/01/shadowsocks-server/" data-id="ck5qhi05z000ug0ukk5x9ya86" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-shadowsocks-client" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -134,7 +199,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/09/21/shadowsocks-client/" data-id="ck3jtblf40011qsuo28mqztds" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/09/21/shadowsocks-client/" data-id="ck5qhi05y000sg0ukz4jy55t8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
@@ -205,7 +270,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/09/07/shadowsocks/" data-id="ck3jtbley000xqsuojeowwkrj" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/09/07/shadowsocks/" data-id="ck5qhi05x000qg0ukum9thxpz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
@@ -284,7 +349,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/08/28/docker/" data-id="ck3jtbleu000uqsuope8riptm" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/08/28/docker/" data-id="ck5qhi070002ig0ukqanry1rg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
@@ -331,7 +396,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/06/09/ubuntu-wps/" data-id="ck3jtblew000vqsuovzd2ta3j" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/06/09/ubuntu-wps/" data-id="ck5qhi05v000ng0ukqfs107r1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
@@ -375,7 +440,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/03/24/mybatis-pager/" data-id="ck3jtblep000rqsuoqn7iuesn" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/03/24/mybatis-pager/" data-id="ck5qhi05m000ig0ukzdw5av76" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/">MyBatis</a></li></ul>
@@ -431,7 +496,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/03/10/transaction-isolation/" data-id="ck3jtblel000pqsuon37g25ff" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/03/10/transaction-isolation/" data-id="ck5qhi05u000lg0ukhdoj7p68" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
@@ -475,7 +540,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/02/25/spring-autowire-resolver/" data-id="ck3jtblei000oqsuopj5vi4vt" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/02/25/spring-autowire-resolver/" data-id="ck5qhi05n000jg0ukkviu78r0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
@@ -516,7 +581,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2017/12/22/mysql-worktime/" data-id="ck3jtblef000mqsuo8xzbjc72" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2017/12/22/mysql-worktime/" data-id="ck5qhi05l000fg0ukamextg8y" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
@@ -563,73 +628,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2017/09/30/css-display/" data-id="ck3jtblec000kqsuogjubmjoe" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2017/09/30/css-display/" data-id="ck5qhi05j000eg0ukrcwk8h9f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-spring-xml-jackson" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/18/spring-xml-jackson/" class="article-date">
-  <time datetime="2017-08-18T10:19:51.000Z" itemprop="datePublished">2017-08-18</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/18/spring-xml-jackson/">spring基于xml格式数据交换的前后端配置与使用之Jackson方式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>MappingJackson2XmlHttpMessageConverter方式解析xml（支持注解修改元素别名）配置及代码如下：</p>
-<p>xml配置文件中添加converter</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean class=&quot;org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter&quot;&gt;</span><br><span class="line">                &lt;property name=&quot;supportedMediaTypes&quot;&gt;</span><br><span class="line">                	&lt;list&gt;</span><br><span class="line">                		&lt;value&gt;application/xml;charset=UTF-8&lt;/value&gt;</span><br><span class="line">                	&lt;/list&gt;</span><br><span class="line">                &lt;/property&gt;</span><br><span class="line">                &lt;property name=&quot;prettyPrint&quot; value=&quot;false&quot;/&gt;</span><br><span class="line">            &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
-
-<p>pom 文件（在原来的基础上添加了jackson-dataformat-xml的依赖，这里jackson为2.8.7版本）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-core&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-annotations&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.dataformat&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-dataformat-xml&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-core&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-annotations&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br><span class="line">		&lt;dependency&gt;</span><br><span class="line">			&lt;groupId&gt;com.fasterxml.jackson.dataformat&lt;/groupId&gt;</span><br><span class="line">			&lt;artifactId&gt;jackson-dataformat-xml&lt;/artifactId&gt;</span><br><span class="line">			&lt;version&gt;$&#123;jackson.version&#125;&lt;/version&gt;</span><br><span class="line">		&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<p>controller文件（这个controller本就是@restcontroller）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@RequestMapping(value = &quot;txml&quot;, headers = &#123; &quot;content-type=application/xml;charset=UTF-8&quot;&#125;)</span><br><span class="line">	public Object testXml(@RequestBody Xml xml) &#123;</span><br><span class="line"></span><br><span class="line">                // 这部分主要打印看看，验证request xml方式入参成功</span><br><span class="line">		try &#123;</span><br><span class="line">			ObjectMapper mapper = new ObjectMapper();</span><br><span class="line">			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)</span><br><span class="line">					.enable(JsonGenerator.Feature.IGNORE_UNKNOWN).enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);</span><br><span class="line">			System.out.println(mapper.writeValueAsString(xml));// 打印入参数据可以看到成功入参</span><br><span class="line">		&#125; catch (JsonProcessingException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">                // response出参数据</span><br><span class="line">		Test_DtoOut tdo = new Test_DtoOut();</span><br><span class="line">		tdo.code = 200;</span><br><span class="line">		tdo.msg = xml.getToUserName();</span><br><span class="line">		return tdo;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-<p>两个出入参dto（只截部分代码）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com.mufeng.dto.in;</span><br><span class="line"></span><br><span class="line">import com.fasterxml.jackson.annotation.JsonProperty;</span><br><span class="line">import com.fasterxml.jackson.annotation.JsonRootName;</span><br><span class="line"></span><br><span class="line">@JsonRootName(value=&quot;out&quot;) // 给xml根节点别名，不然会带包名</span><br><span class="line">public class Xml &#123;</span><br><span class="line">	@JsonProperty(value=&quot;toUserName&quot;)// 变量对应的入参数据标签名，这里可以使实现与入参数据标签名不同</span><br><span class="line">	String toUserName;</span><br><span class="line">	@JsonProperty(value=&quot;fromUserName&quot;)</span><br><span class="line">	String fromUserName;</span><br><span class="line">	@JsonProperty(value=&quot;CreateTime&quot;)</span><br><span class="line">	Long createTime;</span><br><span class="line">	@JsonProperty(value=&quot;MsgType&quot;)</span><br><span class="line">	String msgType;</span><br><span class="line">	@JsonProperty(value=&quot;Event&quot;)</span><br><span class="line">	String event;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">package com.mufeng.dto.out;</span><br><span class="line"></span><br><span class="line">import com.fasterxml.jackson.annotation.JsonProperty;</span><br><span class="line">import com.fasterxml.jackson.annotation.JsonRootName;</span><br><span class="line">import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;</span><br><span class="line"></span><br><span class="line">//@JacksonXmlRootElement(localName=&quot;out&quot;)</span><br><span class="line">@JsonRootName(value=&quot;out&quot;)</span><br><span class="line">public class Test_DtoOut &#123;</span><br><span class="line"></span><br><span class="line">	@JsonProperty(value=&quot;codes&quot;)</span><br><span class="line">	public Integer code;</span><br><span class="line">        // 不给别名xml数据默认的标签名与属性名一致</span><br><span class="line">	public String msg;</span><br></pre></td></tr></table></figure>
-
-<p>前端文件html（注意前端代码要放到服务器上，浏览器输入url，否则contentType不会起作用）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;  </span><br><span class="line">&lt;head&gt;  </span><br><span class="line">&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;application/xml; charset=UTF-8&quot;&gt;  </span><br><span class="line">&lt;title&gt;测试接收XML格式的数据&lt;/title&gt;  </span><br><span class="line">&lt;script type=&quot;text/javascript&quot; src=&quot;https://code.jquery.com/jquery-1.12.4.js&quot;&gt;&lt;/script&gt;  </span><br><span class="line">&lt;!-- &lt;script type=&quot;text/javascript&quot; src=&quot;js/json2.js&quot;&gt;&lt;/script&gt;  --&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot;&gt;  </span><br><span class="line">$(document).ready(function()&#123;  </span><br><span class="line">    sendxml();  </span><br><span class="line">&#125;);  </span><br><span class="line">  </span><br><span class="line">function sendxml()&#123;  </span><br><span class="line">    var xmlData = &quot;&lt;out&gt;&lt;toUserName&gt;toUser&lt;/toUserName&gt;&lt;fromUserName&gt;FromUser&lt;/fromUserName&gt;&lt;CreateTime&gt;123456789&lt;/CreateTime&gt;&lt;MsgType&gt;event&lt;/MsgType&gt;&lt;Event&gt;subscribe&lt;/Event&gt;&lt;/out&gt;&quot;;</span><br><span class="line">   </span><br><span class="line">	$.ajax(&#123;</span><br><span class="line">            type: &quot;POST&quot;,</span><br><span class="line">            url: &quot;http://localhost:8080/valida/webctrl/demo/txml&quot;,</span><br><span class="line">                </span><br><span class="line">                // data sent is xml</span><br><span class="line">				contentType: &quot;application/xml; charset=utf-8&quot;,</span><br><span class="line">                data: xmlData, </span><br><span class="line">                // data in response will expected xml</span><br><span class="line">                dataType: &quot;xml&quot;,</span><br><span class="line">				processData: false,</span><br><span class="line">                anysc: false,</span><br><span class="line">				beforeSend: function(request) &#123;</span><br><span class="line">						</span><br><span class="line">                       request.setRequestHeader(&apos;Access-Control-Allow-Origin: *&apos;);</span><br><span class="line">					   request.setRequestHeader(&apos;Access-Control-Allow-Methods: POST,GET,OPTIONS&apos;);</span><br><span class="line">					   request.overrideMimeType(&apos;application/xml; charset=utf-8&apos;)</span><br><span class="line">					   console.log(JSON.stringify(request));</span><br><span class="line">                 &#125;,</span><br><span class="line">                success: function (result) &#123; </span><br><span class="line">					console.log(result);</span><br><span class="line">                &#125;,</span><br><span class="line">                error: function (XMLHttpRequest, textStatus, errorThrown) &#123;</span><br><span class="line">                    alert(errorThrown + &apos;:&apos; + textStatus); // 错误处理</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">		</span><br><span class="line">&#125;  </span><br><span class="line">&lt;/script&gt;  </span><br><span class="line">&lt;/head&gt;  </span><br><span class="line">&lt;body&gt;  </span><br><span class="line">&lt;/body&gt;  </span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-<p>后端控制台打印</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;toUserName&quot;:&quot;toUser&quot;,&quot;fromUserName&quot;:&quot;FromUser&quot;,&quot;CreateTime&quot;:123456789,&quot;MsgType&quot;:&quot;event&quot;,&quot;Event&quot;:&quot;subscribe&quot;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>前端接收到返回值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;out&gt;&lt;msg&gt;toUser&lt;/msg&gt;&lt;codes&gt;200&lt;/codes&gt;&lt;/out&gt;</span><br></pre></td></tr></table></figure>
-
-<p>另外一种使用xstream实现xml数据交换的配置，详见另一篇博客<br><a href="./2017-08-18_spring_xml_xstream.md">spring基于xml格式数据交换的前后端配置与使用之xstream方式</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2017/08/18/spring-xml-jackson/" data-id="ck3jtbld5000aqsuo65hfsvt4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
 
     </footer>
   </div>
@@ -666,7 +668,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 17.5px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 12.5px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
     </div>
   </div>
 
@@ -675,7 +677,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
     </div>
   </div>
 
@@ -686,6 +688,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/01/08/gitlab-api/">Gitlab Api</a>
+          </li>
         
           <li>
             <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
@@ -703,10 +709,6 @@
             <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
           </li>
         
-          <li>
-            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -719,7 +721,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Vince<br>
+      &copy; 2020 Vince<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

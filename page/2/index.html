@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="Vince Blog">
-<meta property="og:url" content="https://www.uetty.com/page/2/index.html">
+<meta property="og:url" content="https://page.uetty.com/page/2/index.html">
 <meta property="og:site_name" content="Vince Blog">
 <meta property="og:locale" content="zh_CN">
 <meta name="twitter:card" content="summary">
@@ -54,13 +54,387 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="www.uetty.com"></form>
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="page.uetty.com"></form>
       </div>
     </div>
   </div>
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-github-api" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/03/github-api/" class="article-date">
+  <time datetime="2019-06-03T08:48:11.000Z" itemprop="datePublished">2019-06-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/03/github-api/">Github Api</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="认证机制-链接"><a href="#认证机制-链接" class="headerlink" title="认证机制 链接"></a>认证机制 <a href="https://developer.github.com/v3/#authentication" target="_blank" rel="noopener">链接</a></h2><h3 id="认证方式"><a href="#认证方式" class="headerlink" title="认证方式"></a>认证方式</h3><ol>
+<li>基础认证方式 <code>curl -u &quot;username&quot; https://api.github.com</code>或者<code>curl -u username:token https://api.github.com/user</code></li>
+<li>OAuth认证方式<code>curl -H &quot;Authorization: token OAUTH-TOKEN&quot; https://api.github.com</code></li>
+<li>Client ID 和 Client Secret认证<code>curl -i &#39;https://api.github.com/users/whatever?client_id=xxxx&amp;client_secret=yyyy&#39;</code></li>
+</ol>
+<h3 id="认证TOKEN及Client-ID"><a href="#认证TOKEN及Client-ID" class="headerlink" title="认证TOKEN及Client ID"></a>认证TOKEN及Client ID</h3><p>TOKEN：进入github账号<code>settings</code> -&gt; <code>Personal access tokens</code> -&gt; <code>Generate new token</code>生成token，开启repo的权限</p>
+<p>Client ID：进入github账号<code>settings</code> -&gt; <code>OAuth Apps</code> </p>
+<h2 id="频率限制"><a href="#频率限制" class="headerlink" title="频率限制"></a>频率限制</h2><ol>
+<li>对于core、search、graphql、integration_mainfest有自定义的频率限制，其他的是统一的频率限制，可通过<code>/rate_limit</code>接口查看频率限制，返回限制数量、剩余数量、刷新时间等数据。<a href="https://developer.github.com/v3/rate_limit/" target="_blank" rel="noopener">链接</a></li>
+<li>每次请求，响应头中都会返回<code>X-RateLimit</code>、<code>X-RateLimit-Remaining</code>、<code>X-RateLimit-Reset</code>参数，更新限制数量、剩余数量、刷新时间的</li>
+<li>在search中，对于basic authentication、OAuth、或者client_id和secret的，每分钟最多可以有30个请求。未经验证的请求，每分钟最多10个请求。<a href="https://developer.github.com/v3/search/#rate-limit" target="_blank" rel="noopener">链接</a></li>
+<li>单个用户的所有令牌，每小时共享5000个请求。<a href="https://developer.github.com/v3/#rate-limiting" target="_blank" rel="noopener">链接</a></li>
+<li>经过认证的请求会增加一定量频率限制</li>
+</ol>
+<h2 id="请求头要求"><a href="#请求头要求" class="headerlink" title="请求头要求"></a>请求头要求</h2><ol>
+<li>请求头携带属性<code>User-Agent</code><a href="https://developer.github.com/v3/#user-agent-required" target="_blank" rel="noopener">链接</a></li>
+</ol>
+<h2 id="响应头"><a href="#响应头" class="headerlink" title="响应头"></a>响应头</h2><ol>
+<li><code>Location</code> 重定向，根据code判断是永久重定向还是临时重定向：<code>301</code> - 永久重定向，<code>302</code>/<code>307</code> - 临时重定向</li>
+<li><code>Retry-After</code> 请求频率超限后会出现</li>
+<li><code>X-RateLimit</code>、<code>X-RateLimit-Remaining</code>、<code>X-RateLimit-Reset</code>请求频率限制描述</li>
+<li>code：<code>400</code> - JSON错误 Bad Request，<code>422</code> - 字段非法</li>
+</ol>
+<h2 id="API接口-链接"><a href="#API接口-链接" class="headerlink" title="API接口 链接"></a>API接口 <a href="https://developer.github.com/v3/search/" target="_blank" rel="noopener">链接</a></h2><h3 id="1-搜索仓库"><a href="#1-搜索仓库" class="headerlink" title="1. 搜索仓库"></a>1. 搜索仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/repositories</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>. See “<a href="https://help.github.com/articles/searching-for-repositories/" target="_blank" rel="noopener">Searching for repositories</a>“ for a detailed list of qualifiers.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query by number of <code>stars</code>, <code>forks</code>, or <code>help-wanted-issues</code> or how recently the items were <code>updated</code>. Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>通用的搜索</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.github.com/search/repositories?q=tetris+language:assembly&amp;sort=stars&amp;order=desc</span><br></pre></td></tr></table></figure>
+
+<p>多主题搜索</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;Accept: application/vnd.github.mercy-preview+json&quot; \</span><br><span class="line">https://api.github.com/search/repositories?q=topic:ruby+topic:rails</span><br></pre></td></tr></table></figure>
+
+<p>*<em>限定符 *</em><a href="https://help.github.com/en/articles/searching-for-repositories" target="_blank" rel="noopener">链接</a></p>
+<p><code>in:name</code>，例：<code>jquery in:name</code> 限定仓库名称包含jquery</p>
+<p><code>in:description</code>，例： <code>jquery in:name,description</code> 限定仓库名称或描述中包含jquery</p>
+<p><code>in:readme</code>，例：<code>jquery in:readme</code> 限定readme文件中包含jquery</p>
+<p><code>user: USERNAME</code>，例：<code>user:defunkt forks:&gt;100</code> 限定用户未defunkt并且有大于100个fork</p>
+<p><code>org: ORGNAME</code>，例：<code>org:github</code>限定组织为github</p>
+<p><code>size: n</code>， 例：<code>size:1000</code>、<code>size:&gt;=30000</code>、<code>size:&lt;50</code>、<code>size:50..120</code> 限定仓库大小为1MB、大于30MB、小于50KB、在50KB到120KB之间</p>
+<p><code>forks: n</code>，例：<code>forks:5</code> 分支数量匹配</p>
+<p><code>stars: n</code>，例：<code>stars:10..20</code> 星数在10到20之间</p>
+<p><code>created: YYYY-MM-DD</code></p>
+<p><code>pushed: YYYY-MM-DD</code></p>
+<p><code>language: LANGUAGE</code></p>
+<p><code>topic: TOPIC</code>，例：<code>topic:jekyll</code>主题分类是jekyll的</p>
+<p><code>topics: n</code>，例：<code>topics:5</code>有5个主题分类的</p>
+<p><code>license: LICENSE_KEYWORD</code>，例：<code>license:apache-2.0</code>匹配证书是Apache License 2.0的 </p>
+<p><code>is:public</code>或<code>is:private</code></p>
+<p><code>mirror:true</code>或<code>mirror:false</code></p>
+<p><code>archived:true</code>或<code>archived:false</code></p>
+<p><code>repo:USERNAME/REPONAME</code></p>
+<h3 id="2-搜索提交记录"><a href="#2-搜索提交记录" class="headerlink" title="2. 搜索提交记录"></a>2. 搜索提交记录</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/commits</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>. See “<a href="https://help.github.com/articles/searching-commits/" target="_blank" rel="noopener">Searching commits</a>“ for a detailed list of qualifiers.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query by <code>author-date</code> or <code>committer-date</code>. Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>在octocat/Spoon-Knife仓库搜索css有关的提交</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;Accept: application/vnd.github.cloak-preview&quot; \</span><br><span class="line">https://api.github.com/search/commits?q=repo:octocat/Spoon-Knife+css</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-搜索代码"><a href="#3-搜索代码" class="headerlink" title="3. 搜索代码"></a>3. 搜索代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/code</span><br></pre></td></tr></table></figure>
+
+<p>处于搜索的复杂性，有几个搜索限制：</p>
+<ol>
+<li>默认仅搜索默认分支，大部分情况下<code>master</code>分支是默认分支</li>
+<li>仅搜索小于384K的文件</li>
+<li>必须包含一个关键词，<code>language:go</code>是非法的，而<code>amazing language:go</code>是可行的</li>
+</ol>
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>. See “<a href="https://help.github.com/articles/searching-code/" target="_blank" rel="noopener">Searching code</a>“ for a detailed list of qualifiers.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query. Can only be <code>indexed</code>, which indicates how recently a file has been indexed by the GitHub search infrastructure. Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>在jQuery仓库中查找<code>addClass</code> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.github.com/search/code?q=addClass+in:file+language:js+repo:jquery/jquery</span><br></pre></td></tr></table></figure>
+
+<p><strong>接受匹配偏移</strong></p>
+<p>请求头中增加<code>Accept: application/vnd.github.v3.text-match+json</code>参数，将会在响应信息中额外接收到<code>text-matches</code>字段信息，text-matches是一组列表，列表内对象包含<code>object_url</code>、<code>object_type</code>、<code>property</code>、<code>fragment</code>、<code>matches</code>，它们用来表示查询字符串在代码中的匹配位置。<a href="https://developer.github.com/v3/search/#text-match-metadata" target="_blank" rel="noopener">链接</a></p>
+<p><strong>注：在没有Authorization的情况下，存在必须指定[user|repo|org]中的一个参数限制</strong></p>
+<h3 id="3-搜索问题"><a href="#3-搜索问题" class="headerlink" title="3. 搜索问题"></a>3. 搜索问题</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/issues</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>. See “<a href="https://help.github.com/articles/searching-issues-and-pull-requests/" target="_blank" rel="noopener">Searching issues and pull requests</a>“ for a detailed list of qualifiers.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query by the number of <code>comments</code>, <code>reactions</code>, <code>reactions-+1</code>, <code>reactions--1</code>, <code>reactions-smile</code>, <code>reactions-thinking_face</code>, <code>reactions-heart</code>, <code>reactions-tada</code>, or <code>interactions</code>. You can also sort results by how recently the items were <code>created</code> or <code>updated</code>, Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>查找最早的未解决的python问题</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.github.com/search/issues?q=windows+label:bug+language:python+state:open&amp;sort=created&amp;order=asc</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-搜索用户"><a href="#4-搜索用户" class="headerlink" title="4. 搜索用户"></a>4. 搜索用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/users</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>. See “<a href="https://help.github.com/articles/searching-users/" target="_blank" rel="noopener">Searching users</a>“ for a detailed list of qualifiers.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query by number of <code>followers</code> or <code>repositories</code>, or when the person <code>joined</code> GitHub. Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>查询热门用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.github.com/search/users?q=tom+repos:%3E42+followers:%3E1000</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-搜索主题"><a href="#5-搜索主题" class="headerlink" title="5. 搜索主题"></a>5. 搜索主题</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/topics</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The query contains one or more search keywords and qualifiers. Qualifiers allow you to limit your search to specific areas of GitHub. The REST API supports the same qualifiers as GitHub.com. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>.</td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>搜索精选的ruby有关的主题</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -H &apos;Accept: application/vnd.github.mercy-preview+json&apos; \</span><br><span class="line">&apos;https://api.github.com/search/topics?q=ruby+is:featured&apos;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-搜索标签"><a href="#6-搜索标签" class="headerlink" title="6. 搜索标签"></a>6. 搜索标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /search/labels</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">Name</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>repository_id</code></td>
+<td align="center"><code>integer</code></td>
+<td align="center"><strong>Required</strong>. The id of the repository.</td>
+</tr>
+<tr>
+<td align="center"><code>q</code></td>
+<td align="center"><code>string</code></td>
+<td align="center"><strong>Required</strong>. The search keywords. This endpoint does not accept qualifiers in the query. To learn more about the format of the query, see <a href="https://developer.github.com/v3/search/#constructing-a-search-query" target="_blank" rel="noopener">Constructing a search query</a>.</td>
+</tr>
+<tr>
+<td align="center"><code>sort</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Sorts the results of your query by when the label was <code>created</code> or <code>updated</code>. Default: <a href="https://developer.github.com/v3/search/#ranking-search-results" target="_blank" rel="noopener">best match</a></td>
+</tr>
+<tr>
+<td align="center"><code>order</code></td>
+<td align="center"><code>string</code></td>
+<td align="center">Determines whether the first search result returned is the highest number of matches (<code>desc</code>) or lowest number of matches (<code>asc</code>). This parameter is ignored unless you provide <code>sort</code>. Default: <code>desc</code></td>
+</tr>
+<tr>
+<td align="center">per_page</td>
+<td align="center">int</td>
+<td align="center">max 100</td>
+</tr>
+<tr>
+<td align="center">page</td>
+<td align="center">int</td>
+<td align="center">1-based</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong></p>
+<p>在指定仓库查找<code>bug</code>、<code>defect</code>、<code>eenhancement</code>有关的标签</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -H &apos;Accept: application/vnd.github.symmetra-preview+json&apos; \</span><br><span class="line">&apos;https://api.github.com/search/labels?repository_id=64778136&amp;q=bug+defect+enhancement&apos;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://page.uetty.com/2019/06/03/github-api/" data-id="ck5qhi071002kg0ukj843fgy6" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/api/">api</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-idea-prefer" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -166,14 +540,14 @@
 </li>
 </ol>
 <h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>File =&gt; Settings… =&gt; Keymap页面中：输入框输入用于匹配文字，输入框右侧按钮用于匹配快捷键，修改快捷键时，点击修改项，悬浮框中可选择设置键盘快捷键触发、设置鼠标配合Ctrl等键触发、缩写触发</p>
-<h2 id="快捷键配置导入导出"><a href="#快捷键配置导入导出" class="headerlink" title="快捷键配置导入导出"></a>快捷键配置导入导出</h2><p>快捷键配置文件位置<a href="../static/MB19051801-1.xml">快捷键配置</a></p>
+<h2 id="快捷键配置导入导出"><a href="#快捷键配置导入导出" class="headerlink" title="快捷键配置导入导出"></a>快捷键配置导入导出</h2><p>快捷键配置文件位置[快捷键配置](../static/Vince Style.xml)</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Linux：~/.IdeaIC2019.1/config/keymaps/</span><br><span class="line">Windows：C:\Users\Administrator/.IdeaIC2019.1/config/keymaps/</span><br></pre></td></tr></table></figure>
 
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/05/18/idea-prefer/" data-id="ck3jtblfv001kqsuoo5q2i2uv" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/05/18/idea-prefer/" data-id="ck5qhi068001ag0ukvcisnc1e" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IDE/">IDE</a></li></ul>
@@ -337,7 +711,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/04/22/rabbitmq/" data-id="ck3jtblfx001lqsuocxaqr0st" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/04/22/rabbitmq/" data-id="ck5qhi07k002xg0uknlwwmuix" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li></ul>
@@ -382,7 +756,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/03/07/lock-opinion/" data-id="ck3jtblfr001gqsuoue2ipitq" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/03/07/lock-opinion/" data-id="ck5qhi0660016g0uk1km2ih0u" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
@@ -429,7 +803,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/02/28/source-hashmap/" data-id="ck3jtblfo001dqsuou692mtd2" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/02/28/source-hashmap/" data-id="ck5qhi0670019g0uk6ausihk1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
@@ -516,7 +890,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/02/17/jvm-heap-stack/" data-id="ck3jtblfk001bqsuosdrhfpyh" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/02/17/jvm-heap-stack/" data-id="ck5qhi0650014g0ukep0ao024" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
@@ -584,7 +958,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2019/02/09/source-countdownlatch/" data-id="ck3jtblfh0019qsuolexzk9kp" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/02/09/source-countdownlatch/" data-id="ck5qhi0630011g0ukbj7gnrf4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
@@ -651,7 +1025,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/12/30/iptables/" data-id="ck3jtblf60013qsuo1xbiidsl" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/12/30/iptables/" data-id="ck5qhi061000yg0ukhptqpntl" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
@@ -742,7 +1116,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/12/30/mysql-slave/" data-id="ck3jtblfe0017qsuov0m37lz7" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/12/30/mysql-slave/" data-id="ck5qhi0620010g0uk24mk2fj2" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
@@ -785,75 +1159,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/11/15/dubbo-retry-policy/" data-id="ck3jtblfb0015qsuoihx5hs3g" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2018/11/15/dubbo-retry-policy/" data-id="ck5qhi060000wg0ukzftjde94" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/">dubbo</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-shadowsocks-server" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/10/01/shadowsocks-server/" class="article-date">
-  <time datetime="2018-10-01T06:12:30.000Z" itemprop="datePublished">2018-10-01</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/10/01/shadowsocks-server/">shadowsocks docker 镜像实现代理 - 服务端（搭建代理服务器）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>基于Ubuntu 18.04 / Ubuntu 16.04测试，这里记录的是代理服务器的搭建，需要有一台境外的linux(各种发行版本的都行，只要能安装docker)服务器<br>docker 安装见 <a href="https://blog.csdn.net/Vincent_Field/article/details/82086197" target="_blank" rel="noopener">https://blog.csdn.net/Vincent_Field/article/details/82086197</a></p>
-<h2 id="镜像获取"><a href="#镜像获取" class="headerlink" title="镜像获取"></a>镜像获取</h2><hr>
-<p>docker pull uetty/shadowsocks:server</p>
-<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><hr>
-<h3 id="初次启动"><a href="#初次启动" class="headerlink" title="初次启动"></a>初次启动</h3><blockquote>
-<ol>
-<li>宿主机上运行启动容器命令：<br>docker run –net=host –name=socks -t uetty/shadowsocks:server<br>ctrl + c 退出</li>
-<li>进入容器内部：<br>docker exec -it socks bash<br>修改 /etc/shadowsocks.json 文件(vim /etc/shadowsocks.json)：<br>按i键编辑文件<br>设置端口、密码（可设置多对）、以及加密方式(method)<br>保存(依次：ctrl + c  -&gt;  输入:wq  -&gt;  回车)</li>
-<li>在容器内部运行命令：<br>ssserver -c /etc/shadowsocks.json -d start<br>退出容器，先后按下：<br>ctrl + p     ctrl + q<br>在本地电脑使用客户端连接该服务器尝试是否代理成功</li>
-</ol>
-</blockquote>
-<h3 id="关闭代理方式（第二步根据需要选择）"><a href="#关闭代理方式（第二步根据需要选择）" class="headerlink" title="关闭代理方式（第二步根据需要选择）"></a>关闭代理方式（第二步根据需要选择）</h3><blockquote>
-<ol>
-<li>进入容器：<br>docker exec -it socks bash<br>执行停止命令：<br>ssserver -c /etc/shadowsocks.json -d stop</li>
-</ol>
-</blockquote>
-<h3 id="重启服务器后重新启动代理（服务器较少需要重启的情况）"><a href="#重启服务器后重新启动代理（服务器较少需要重启的情况）" class="headerlink" title="重启服务器后重新启动代理（服务器较少需要重启的情况）"></a>重启服务器后重新启动代理（服务器较少需要重启的情况）</h3><blockquote>
-<ol>
-<li>docker start socks</li>
-<li>docker exec -it socks bash</li>
-<li>此时已进入容器中，执行：<br>ssserver -c /etc/shadowsocks.json -d start</li>
-</ol>
-</blockquote>
-<h3 id="尝试使用客户端连接服务器端代理"><a href="#尝试使用客户端连接服务器端代理" class="headerlink" title="尝试使用客户端连接服务器端代理"></a>尝试使用客户端连接服务器端代理</h3><blockquote>
-<p><a href="https://raw.githubusercontent.com/Uetty/uetty.github.io/master/blog/影梭Win.zip" target="_blank" rel="noopener">Windows系统客户端</a></p>
-<p><a href="./2018-09-21_shadowsocks.md">Ubuntu系统客户端教程</a></p>
-</blockquote>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://www.uetty.com/2018/10/01/shadowsocks-server/" data-id="ck3jtblf1000zqsuon2mnsbxr" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
 
     </footer>
   </div>
@@ -890,7 +1199,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 10px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 17.5px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 12.5px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
     </div>
   </div>
 
@@ -899,7 +1208,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
     </div>
   </div>
 
@@ -910,6 +1219,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2020/01/08/gitlab-api/">Gitlab Api</a>
+          </li>
         
           <li>
             <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
@@ -927,10 +1240,6 @@
             <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
           </li>
         
-          <li>
-            <a href="/2019/07/29/compare-list-vertor-cowlist/">ArrayList、Vector、CopyOnWriteArrayList对比</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -943,7 +1252,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Vince<br>
+      &copy; 2020 Vince<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

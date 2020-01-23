@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Gitlab Api | Vince Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="认证(官网文档地址)四种方式  OAuth2 tokens Personal access tokens Session cookie GitLab CI job token (Specific endpoints only)  OAuth2 tokenscurl https://gitlab.example.com/api/v4/projects?access_token=OAUTH-TOKEN">
+<meta name="keywords" content="gitlab, api">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gitlab Api">
+<meta property="og:url" content="https://page.uetty.com/2020/01/08/gitlab-api/index.html">
+<meta property="og:site_name" content="Vince Blog">
+<meta property="og:description" content="认证(官网文档地址)四种方式  OAuth2 tokens Personal access tokens Session cookie GitLab CI job token (Specific endpoints only)  OAuth2 tokenscurl https://gitlab.example.com/api/v4/projects?access_token=OAUTH-TOKEN">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:updated_time" content="2020-01-23T08:21:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gitlab Api">
+<meta name="twitter:description" content="认证(官网文档地址)四种方式  OAuth2 tokens Personal access tokens Session cookie GitLab CI job token (Specific endpoints only)  OAuth2 tokenscurl https://gitlab.example.com/api/v4/projects?access_token=OAUTH-TOKEN">
+  
+    <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Vince Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.baidu.com/s" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q1" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="page.uetty.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-gitlab-api" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/01/08/gitlab-api/" class="article-date">
+  <time datetime="2020-01-08T11:02:24.000Z" itemprop="datePublished">2020-01-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Gitlab Api
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="认证-官网文档地址"><a href="#认证-官网文档地址" class="headerlink" title="认证(官网文档地址)"></a>认证(<a href="https://docs.gitlab.com/ee/api/README.html#authentication" target="_blank" rel="noopener">官网文档地址</a>)</h2><p>四种方式</p>
+<ol>
+<li>OAuth2 tokens</li>
+<li>Personal access tokens</li>
+<li>Session cookie</li>
+<li>GitLab CI job token (Specific endpoints only)</li>
+</ol>
+<h3 id="OAuth2-tokens"><a href="#OAuth2-tokens" class="headerlink" title="OAuth2 tokens"></a>OAuth2 tokens</h3><p><code>curl https://gitlab.example.com/api/v4/projects?access_token=OAUTH-TOKEN</code></p>
+<p>或</p>
+<p><code>curl --header &quot;Authorization: Bearer OAUTH-TOKEN&quot; https://gitlab.example.com/api/v4/projects</code></p>
+<h3 id="Personal-access-tokens"><a href="#Personal-access-tokens" class="headerlink" title="Personal access tokens"></a>Personal access tokens</h3><p><code>curl https://gitlab.example.com/api/v4/projects?private_token=&lt;your_access_token&gt;</code></p>
+<p>或</p>
+<p><code>curl --header &quot;Private-Token: &lt;your_access_token&gt;&quot; https://gitlab.example.com/api/v4/projects</code></p>
+<p>或</p>
+<p><code>curl --header &quot;Authorization: Bearer &lt;your_access_token&gt;&quot; https://gitlab.example.com/api/v4/projects</code></p>
+<h2 id="响应状态码-官网文档地址"><a href="#响应状态码-官网文档地址" class="headerlink" title="响应状态码(官网文档地址)"></a>响应状态码(<a href="https://docs.gitlab.com/ee/api/README.html#status-codes" target="_blank" rel="noopener">官网文档地址</a>)</h2><p>成功的状态码主要会有三种，失败的情况有多种，具体官网文档查看</p>
+<table>
+<thead>
+<tr>
+<th align="left">状态码</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>200</code></td>
+<td align="left">对于 <code>GET</code>, <code>PUT</code> or <code>DELETE</code> 请求，成功时返回的响应头中的状态码，并且返回的响应体包含json数据</td>
+</tr>
+<tr>
+<td align="left"><code>201</code></td>
+<td align="left">对于<code>POST</code>请求，成功时返回的响应头中的状态码，并且返回的响应体包含json数据</td>
+</tr>
+<tr>
+<td align="left"><code>204</code></td>
+<td align="left">表示服务器成功执行了请求，但返回的响应体无内容（即无响应体部分）</td>
+</tr>
+</tbody></table>
+<h2 id="分页-官网文档地址"><a href="#分页-官网文档地址" class="headerlink" title="分页(官网文档地址)"></a>分页(<a href="https://docs.gitlab.com/ee/api/README.html#pagination" target="_blank" rel="noopener">官网文档地址</a>)</h2><p>提供两种分页方式</p>
+<ol>
+<li>键集分页（性能原因考虑，官网推荐这种方式）</li>
+<li>偏移分页</li>
+</ol>
+<h3 id="偏移分页"><a href="#偏移分页" class="headerlink" title="偏移分页"></a>偏移分页</h3><p>请求参数控制分页</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>page</code></td>
+<td align="left">页码（默认1）</td>
+</tr>
+<tr>
+<td align="left"><code>per_page</code></td>
+<td align="left">每页数量（默认20，最大100）</td>
+</tr>
+</tbody></table>
+<h3 id="键集分页"><a href="#键集分页" class="headerlink" title="键集分页"></a>键集分页</h3><p>键集分页可以更有效地检索页面，并且与基于偏移的分页不同，运行时与集合的大小无关（翻译自官网）。</p>
+<p>请求参数控制分页</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>pagination</code></td>
+<td align="left"><code>keyset</code> (为了允许键集分页而设定)</td>
+</tr>
+<tr>
+<td align="left"><code>per_page</code></td>
+<td align="left">每页数量（默认20，最大100）</td>
+</tr>
+</tbody></table>
+<p>例（<strong>官网文档案例</strong>）：</p>
+<p>请求（官网文档上<code>--request PUT</code>应该是错的，实际请求应该去掉）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --request PUT --header &quot;PRIVATE-TOKEN: &lt;your_access_token&gt;&quot; &quot;https://gitlab.example.com/api/v4/projects?pagination=keyset&amp;per_page=50&amp;order_by=id&amp;sort=asc&quot;</span><br></pre></td></tr></table></figure>
+
+<p>响应信息（<strong>官网文档案例</strong>中响应中包含到下一页的链接）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">...</span><br><span class="line">Link: &lt;https://gitlab.example.com/api/v4/projects?pagination=keyset&amp;per_page=50&amp;order_by=id&amp;sort=asc&amp;id_after=42&gt;; rel=&quot;next&quot;</span><br><span class="line">Status: 200 OK</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>按官网文档介绍</strong>，下一页链接中包含额外的过滤器<code>id_after</code>，过滤器类型取决于<code>order_by</code>选项，当没有更多的记录时，响应头不包含<code>Link</code>字段。<code>rel=&quot;next&quot;</code>，并不是唯一的情况，还可能有<code>rel=&quot;first&quot;</code>、rel=”last”，<code>Link</code>字段中也可能同时存在多个<code>&lt;....&gt;; rel=&quot;...&quot;</code>，解码时需要注意。</p>
+<p>仅对特定的资源支持键集分页(实际上应该不止这个接口)</p>
+<table>
+<thead>
+<tr>
+<th align="left">Resource</th>
+<th align="left">Order</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><a href="https://docs.gitlab.com/ee/api/projects.html" target="_blank" rel="noopener">/api/v4/projects</a></td>
+<td align="left"><code>order_by=id</code> only</td>
+</tr>
+</tbody></table>
+<p><strong>实际验证之后发现</strong>，与文档描述是不一样的，响应头<code>Link</code>字段中的链接增加的参数不是<code>order_by</code>字段，而是<code>page=2</code>参数，以及增加了<code>/api/v4/projects</code>接口的其他参数，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">...</span><br><span class="line">Link: &lt;https://gitlab.com/api/v4/projects?membership=false&amp;order_by=id&amp;owned=false&amp;page=2&amp;pagination=keyset&amp;per_page=50&amp;repository_checksum_failed=false&amp;simple=false&amp;sort=asc&amp;starred=false&amp;statistics=false&amp;wiki_checksum_failed=false&amp;with_custom_attributes=false&amp;with_issues_enabled=false&amp;with_merge_requests_enabled=false&gt;; rel=&quot;next&quot;, &lt;https://gitlab.com/api/v4/projects?membership=false&amp;order_by=id&amp;owned=false&amp;page=1&amp;pagination=keyset&amp;per_page=50&amp;repository_checksum_failed=false&amp;simple=false&amp;sort=asc&amp;starred=false&amp;statistics=false&amp;wiki_checksum_failed=false&amp;with_custom_attributes=false&amp;with_issues_enabled=false&amp;with_merge_requests_enabled=false&gt;; rel=&quot;first&quot;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>可能是官网文档较长时间没更新了吧</p>
+<h3 id="分页响应头"><a href="#分页响应头" class="headerlink" title="分页响应头"></a>分页响应头</h3><p>分页响应头中包含下面字段</p>
+<table>
+<thead>
+<tr>
+<th align="left">响应头</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>X-Total</code></td>
+<td align="left">结果总数量（并不一定返回，官网介绍出于性能原因考虑结果集大于1000时就不会返回，实际上不返回的情况可能更多）</td>
+</tr>
+<tr>
+<td align="left"><code>X-Total-Pages</code></td>
+<td align="left">结果总页数（并不一定返回，官网介绍出于性能原因考虑结果集大于1000时就不会返回，实际上不返回的情况可能更多）</td>
+</tr>
+<tr>
+<td align="left"><code>X-Per-Page</code></td>
+<td align="left">每页多少条</td>
+</tr>
+<tr>
+<td align="left"><code>X-Page</code></td>
+<td align="left">当期所在页</td>
+</tr>
+<tr>
+<td align="left"><code>X-Next-Page</code></td>
+<td align="left">下一页</td>
+</tr>
+<tr>
+<td align="left"><code>X-Prev-Page</code></td>
+<td align="left">前一页</td>
+</tr>
+</tbody></table>
+<p>分页这里还是有不少坑的，实际表现与官方文档描述诸多不符</p>
+<p>键集分页响应头中另外还包含如下字段</p>
+<table>
+<thead>
+<tr>
+<th align="left">响应头</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>Link</code></td>
+<td align="left">可能包含下一页的请求地址、上一页的请求地址、第一页的请求地址、最后一页的请求地址。仅仅是可能包含，不一定包含，比如，当结果总条数特别多时，就不会包含最后一页的请求地址（可能是性能原因考虑，gitlab服务器上实际上没有查询完所有结果就响应了）；当页面位于第一页时，不会包含上一页的请求地址。</td>
+</tr>
+</tbody></table>
+<h2 id="频率限制-官网文档地址"><a href="#频率限制-官网文档地址" class="headerlink" title="频率限制(官网文档地址)"></a>频率限制(<a href="https://docs.gitlab.com/ee/security/rate_limits.html" target="_blank" rel="noopener">官网文档地址</a>)</h2><p>实际上频率限制这一块文档，基本是面向2B客户（即在自己服务器上部署gitlab的客户）的，API查询从官网文档中得不到多少信息。<code>Rack Attach</code>章节，可能会有些许借鉴意义，它旨在限制来自大量请求的IP地址的请求。</p>
+<h3 id="Rack-Attach"><a href="#Rack-Attach" class="headerlink" title="Rack Attach"></a>Rack Attach</h3><p>API查询的请求头中返回的字段会包含如下几个(<a href="https://docs.gitlab.com/ee/user/gitlab_com/index.html#haproxy-api-throttle" target="_blank" rel="noopener">此处官网链接</a>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RateLimit-Limit: 600</span><br><span class="line">RateLimit-Observed: 6</span><br><span class="line">RateLimit-Remaining: 594</span><br><span class="line">RateLimit-Reset: 1563325137</span><br><span class="line">RateLimit-ResetTime: Wed, 17 Jul 2019 00:58:57 GMT</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>RateLimit-Remaining</code>表示到重置时间<code>RateLimit-Reset</code>为止，能进行多少次请求</p>
+<p>对于某些受保护的接口，每分钟超过10次的情况下，会触发code <code>429</code>，并且响应头中会包含如下信息。表明当前IP被服务器限制请求，可在60秒后重新发起请求</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Retry-After: 60</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下，受保护的接口有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">default[&apos;gitlab&apos;][&apos;gitlab-rails&apos;][&apos;rack_attack_protected_paths&apos;] = [</span><br><span class="line">  &apos;/users/password&apos;,</span><br><span class="line">  &apos;/users/sign_in&apos;,</span><br><span class="line">  &apos;/api/#&#123;API::API.version&#125;/session.json&apos;,</span><br><span class="line">  &apos;/api/#&#123;API::API.version&#125;/session&apos;,</span><br><span class="line">  &apos;/users&apos;,</span><br><span class="line">  &apos;/users/confirmation&apos;,</span><br><span class="line">  &apos;/unsubscribes/&apos;,</span><br><span class="line">  &apos;/import/github/personal_access_token&apos;,</span><br><span class="line">  &apos;/admin/session&apos;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置项目的请求频率"><a href="#设置项目的请求频率" class="headerlink" title="设置项目的请求频率"></a>设置项目的请求频率</h3><p>这一块与API请求无关，是2B客户设置请求频率相关的内容，可以在<a href="https://docs.gitlab.com/ee/user/admin_area/settings/user_and_ip_rate_limits.html" target="_blank" rel="noopener">User and IP rate limits</a>和<a href="https://docs.gitlab.com/ee/user/admin_area/settings/rate_limits_on_raw_endpoints.html" target="_blank" rel="noopener">Rate limits on raw endpoints</a>章节中查看</p>
+<h2 id="查询相关接口官网文档地址"><a href="#查询相关接口官网文档地址" class="headerlink" title="查询相关接口官网文档地址"></a>查询相关接口<a href="https://docs.gitlab.com/ee/api/README.html#status-codes" target="_blank" rel="noopener">官网文档地址</a></h2><h3 id="search接口"><a href="#search接口" class="headerlink" title="search接口"></a>search接口</h3><p>全局（不限项目project/不限组织group）search接口路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/api/v4/search</span><br></pre></td></tr></table></figure>
+
+<p>参数</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>scope</code></td>
+<td align="left">搜索范围</td>
+</tr>
+<tr>
+<td align="left"><code>search</code></td>
+<td align="left">搜索的字符串</td>
+</tr>
+</tbody></table>
+<p>scope取值</p>
+<table>
+<thead>
+<tr>
+<th align="left">取值</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">projects</td>
+<td align="left">从项目名称和项目描述中搜索</td>
+</tr>
+<tr>
+<td align="left">merge_requests</td>
+<td align="left">从merge记录搜索</td>
+</tr>
+<tr>
+<td align="left">issues</td>
+<td align="left">从issue搜索</td>
+</tr>
+<tr>
+<td align="left">milestones</td>
+<td align="left">从发布的里程碑版本搜索</td>
+</tr>
+<tr>
+<td align="left">snippet_titles</td>
+<td align="left">从代码片（与项目没有关系，是另一种与项目同级别的产品）标题搜索</td>
+</tr>
+<tr>
+<td align="left">snippet_blobs</td>
+<td align="left">从代码片的内容搜索</td>
+</tr>
+<tr>
+<td align="left">wiki_blobs</td>
+<td align="left">从项目的文件内容搜索（在gitlab官方代码服务器上没法使用，需要在自己服务器部署gitlab服务器，并安装elasticsearch才能使用），在官网描述中看不出wiki_blobs与blobs有何区别</td>
+</tr>
+<tr>
+<td align="left">commits</td>
+<td align="left">从commit中搜索（在gitlab官方代码服务器上没法使用，需要在自己服务器部署gitlab服务器，并安装elasticsearch才能使用）</td>
+</tr>
+<tr>
+<td align="left">blobs</td>
+<td align="left">从项目的文件内容搜索（在gitlab官方代码服务器上没法使用，需要在自己服务器部署gitlab服务器，并安装elasticsearch才能使用）</td>
+</tr>
+<tr>
+<td align="left">users</td>
+<td align="left">从用户名搜索</td>
+</tr>
+</tbody></table>
+<h3 id="projects接口"><a href="#projects接口" class="headerlink" title="projects接口"></a>projects接口</h3><p>接口路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/api/v4/projects</span><br></pre></td></tr></table></figure>
+
+<p>参数</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">类型</th>
+<th align="left">是否必传</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>archived</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤打包状态</td>
+</tr>
+<tr>
+<td align="left"><code>visibility</code></td>
+<td align="left">string</td>
+<td align="left">no</td>
+<td align="left">过滤可见范围 <code>public</code>, <code>internal</code>, <code>private</code></td>
+</tr>
+<tr>
+<td align="left"><code>order_by</code></td>
+<td align="left">string</td>
+<td align="left">no</td>
+<td align="left">排序依据字段，可以为<code>id</code>, <code>name</code>, <code>path</code>, <code>created_at</code>, <code>updated_at</code>, <code>last_activity_at</code> 字段，默认是 <code>created_at</code></td>
+</tr>
+<tr>
+<td align="left"><code>sort</code></td>
+<td align="left">string</td>
+<td align="left">no</td>
+<td align="left">排序，<code>asc</code> / <code>desc</code> ，默认是 <code>desc</code></td>
+</tr>
+<tr>
+<td align="left"><code>search</code></td>
+<td align="left">string</td>
+<td align="left">no</td>
+<td align="left">搜索字符串</td>
+</tr>
+<tr>
+<td align="left"><code>simple</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">true时，只返回少量简单字段</td>
+</tr>
+<tr>
+<td align="left"><code>owned</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，仅当前用户拥有的项目</td>
+</tr>
+<tr>
+<td align="left"><code>membership</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，仅当前用户所属的项目</td>
+</tr>
+<tr>
+<td align="left"><code>starred</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，仅当前用户加星的项目</td>
+</tr>
+<tr>
+<td align="left"><code>statistics</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">包括项目统计</td>
+</tr>
+<tr>
+<td align="left"><code>with_custom_attributes</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，包含<a href="https://docs.gitlab.com/ee/api/custom_attributes.html" target="_blank" rel="noopener">自定义属性 custom_attributes</a>设置（仅管理员）</td>
+</tr>
+<tr>
+<td align="left"><code>with_issues_enabled</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，根据issues_enabled值</td>
+</tr>
+<tr>
+<td align="left"><code>with_merge_requests_enabled</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">过滤，根据merge_requests_enabled值</td>
+</tr>
+<tr>
+<td align="left"><code>with_programming_language</code></td>
+<td align="left">string</td>
+<td align="left">no</td>
+<td align="left">过滤，按编程语言过滤</td>
+</tr>
+<tr>
+<td align="left"><code>wiki_checksum_failed</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">wiki校验值计算失败的项目(<a href="https://about.gitlab.com/pricing/" target="_blank" rel="noopener">GitLab Premium</a> 11.2中的<a href="https://gitlab.com/gitlab-org/gitlab/merge_requests/6137" target="_blank" rel="noopener">介绍</a>)</td>
+</tr>
+<tr>
+<td align="left"><code>repository_checksum_failed</code></td>
+<td align="left">boolean</td>
+<td align="left">no</td>
+<td align="left">repository校验值计算失败的项目(<a href="https://about.gitlab.com/pricing/" target="_blank" rel="noopener">GitLab Premium</a> 11.2中的<a href="https://gitlab.com/gitlab-org/gitlab/merge_requests/6137" target="_blank" rel="noopener">介绍</a>)</td>
+</tr>
+<tr>
+<td align="left"><code>min_access_level</code></td>
+<td align="left">integer</td>
+<td align="left">no</td>
+<td align="left">过滤，仅当前用户的 <a href="https://docs.gitlab.com/ee/api/members.html" target="_blank" rel="noopener">最低访问权限级别</a></td>
+</tr>
+<tr>
+<td align="left"><code>id_after</code></td>
+<td align="left">integer</td>
+<td align="left">no</td>
+<td align="left">过滤，限制为ID大于指定ID的项目</td>
+</tr>
+<tr>
+<td align="left"><code>id_before</code></td>
+<td align="left">integer</td>
+<td align="left">no</td>
+<td align="left">过滤，限制为ID小于指定ID的项目</td>
+</tr>
+</tbody></table>
+<p>返回值中有两个需要注意的参数<code>repository_access_level</code>和<code>visibility</code>，只有<code>repository_access_level</code>参数值为<code>enabled</code>且<code>visibility</code>参数值为<code>public</code>时才可以clone该仓库</p>
+<p>该接口，经身份验证的用户和未经身份验证的用户均可使用，但未经身份验证的用户响应内容中的信息会更少，与<code>simple=true</code>的时候相同。</p>
+<p>当请求中包含自定义属性时，请求url传参如下所示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /api/v4/projects?custom_attributes[key]=value&amp;custom_attributes[other_key]=other_value</span><br></pre></td></tr></table></figure>
+
+<p>阅读文档后，没怎么弄懂上面<code>/api/v4/projects</code>和<code>/api/v4/search?scope=projects</code>这两个接口有什么重要的区别，姑且认为它们是可以相互取代的，使用任意一个皆可。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://page.uetty.com/2020/01/08/gitlab-api/" data-id="ck5qhi075002pg0uks9hqbyjk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/api/">api</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/12/11/source-bitcount/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">JDK中Integer.bitCount解析</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/01/08/gitlab-api/">Gitlab Api</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
+          </li>
+        
+          <li>
+            <a href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Vince<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
