@@ -7,13 +7,13 @@
   
   <title>从二分图开始到最大匹配 | Vince Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="概念图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满">
+  <meta name="description" content="图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满足：">
 <meta name="keywords" content="最小覆盖, 最大匹配，最大独立集">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从二分图开始到最大匹配">
 <meta property="og:url" content="https://page.uetty.com/2020/02/23/character-set-encoding/index.html">
 <meta property="og:site_name" content="Vince Blog">
-<meta property="og:description" content="概念图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满">
+<meta property="og:description" content="图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满足：">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-1.png">
 <meta property="og:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-2.png">
@@ -21,10 +21,10 @@
 <meta property="og:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-4.png">
 <meta property="og:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-5.png">
 <meta property="og:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-6.png">
-<meta property="og:updated_time" content="2020-02-25T12:38:51.013Z">
+<meta property="og:updated_time" content="2020-02-25T12:54:10.775Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从二分图开始到最大匹配">
-<meta name="twitter:description" content="概念图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满">
+<meta name="twitter:description" content="图论概念 图：由顶点和顶点之间的边组成的集合，表示为G&amp;lt;V, E&amp;gt;，V表示的是顶点的集合，E表示的是边的集合 独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边 最大独立集：图内顶点数量最多的独立集 覆盖：图内点集的子集，且满足：能覆盖（顶点是边的任一个端点都视为覆盖边）图的所有边 最小覆盖：图内顶点数量最少的覆盖 最小覆盖数：最小覆盖的顶点数量 匹配：图内边集的子集，且满足：">
 <meta name="twitter:image" content="https://page.uetty.com/2020/02/23/static/MB20022301-1.png">
   
     <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
@@ -94,7 +94,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h2 id="图论概念"><a href="#图论概念" class="headerlink" title="图论概念"></a>图论概念</h2><ul>
+        <h2 id="图论概念"><a href="#图论概念" class="headerlink" title="图论概念"></a>图论概念</h2><ul>
 <li>图：由顶点和顶点之间的边组成的集合，表示为G&lt;V, E&gt;，V表示的是顶点的集合，E表示的是边的集合</li>
 <li>独立集：图内点集的子集，且满足：每两个顶点之间均不存在连边</li>
 <li>最大独立集：图内顶点数量最多的独立集</li>
@@ -114,7 +114,7 @@
 </ol>
 <p>二分图充要条件证明见<a href="https://baike.baidu.com/item/%E4%BA%8C%E5%88%86%E5%9B%BE/9089095?fr=aladdin#3" target="_blank" rel="noopener">百度百科</a>（以<code>边跨集合A和B，形成环必然需要一次往返的倍数</code>这个思路考虑）</p>
 <p>最大独立集顶点数量证明略（简单思考：去掉最小覆盖点，图中边自然也就不存在了）</p>
-<h3 id="证码最小覆盖数等于最大匹配数"><a href="#证码最小覆盖数等于最大匹配数" class="headerlink" title="证码最小覆盖数等于最大匹配数"></a>证码最小覆盖数等于最大匹配数</h3><p>条件：</p>
+<h3 id="证明最小覆盖数等于最大匹配数"><a href="#证明最小覆盖数等于最大匹配数" class="headerlink" title="证明最小覆盖数等于最大匹配数"></a>证明最小覆盖数等于最大匹配数</h3><p>条件：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">图G&lt;V,E&gt;</span><br><span class="line">存在点集C是最小点覆盖，最小覆盖数为c</span><br><span class="line">存在边集M是最大匹配，最大匹配数为m</span><br></pre></td></tr></table></figure>
 
 <p>求证：m = c</p>
