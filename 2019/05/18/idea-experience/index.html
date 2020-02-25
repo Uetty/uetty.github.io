@@ -5,21 +5,23 @@
   
 
   
-  <title>IDEA常用习惯偏好设置 | Vince Blog</title>
+  <title>IDEA配置经验与问题解决 | Vince Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="快捷键偏好设置 查找(Keymap -&amp;gt; Main Menu -&amp;gt; Edit -&amp;gt; Find -&amp;gt; Find…) ：Ctrl + F    【速记：find】   复制上一行到下一行(Keymap -&amp;gt; Edit Actions -&amp;gt; Duplicate Entire Lines) ： Ctrl + 向下箭头   移动代码到上一行(Keymap -&amp;gt; Ma">
 <meta name="keywords" content="idea, 快捷键, 配置">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IDEA常用习惯偏好设置">
-<meta property="og:url" content="https://page.uetty.com/2019/05/18/idea-prefer/index.html">
+<meta property="og:title" content="IDEA配置经验与问题解决">
+<meta property="og:url" content="https://page.uetty.com/2019/05/18/idea-experience/index.html">
 <meta property="og:site_name" content="Vince Blog">
 <meta property="og:description" content="快捷键偏好设置 查找(Keymap -&amp;gt; Main Menu -&amp;gt; Edit -&amp;gt; Find -&amp;gt; Find…) ：Ctrl + F    【速记：find】   复制上一行到下一行(Keymap -&amp;gt; Edit Actions -&amp;gt; Duplicate Entire Lines) ： Ctrl + 向下箭头   移动代码到上一行(Keymap -&amp;gt; Ma">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://page.uetty.com/2019/05/18/static/MB19051801-1.png">
 <meta property="og:image" content="https://page.uetty.com/2019/05/18/static/MB19051801-2.png">
-<meta property="og:updated_time" content="2020-01-30T06:24:23.389Z">
+<meta property="og:image" content="https://page.uetty.com/2019/05/18/static/MB19051801-3.png">
+<meta property="og:image" content="https://page.uetty.com/2019/05/18/static/MB19051801-4.png">
+<meta property="og:updated_time" content="2020-02-11T08:59:29.374Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="IDEA常用习惯偏好设置">
+<meta name="twitter:title" content="IDEA配置经验与问题解决">
 <meta name="twitter:description" content="快捷键偏好设置 查找(Keymap -&amp;gt; Main Menu -&amp;gt; Edit -&amp;gt; Find -&amp;gt; Find…) ：Ctrl + F    【速记：find】   复制上一行到下一行(Keymap -&amp;gt; Edit Actions -&amp;gt; Duplicate Entire Lines) ： Ctrl + 向下箭头   移动代码到上一行(Keymap -&amp;gt; Ma">
 <meta name="twitter:image" content="https://page.uetty.com/2019/05/18/static/MB19051801-1.png">
   
@@ -68,9 +70,9 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-idea-prefer" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-idea-experience" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/05/18/idea-prefer/" class="article-date">
+    <a href="/2019/05/18/idea-experience/" class="article-date">
   <time datetime="2019-05-18T02:32:33.000Z" itemprop="datePublished">2019-05-18</time>
 </a>
     
@@ -82,7 +84,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      IDEA常用习惯偏好设置
+      IDEA配置经验与问题解决
     </h1>
   
 
@@ -130,7 +132,7 @@
 </ol>
 <p>CTRL为基础组合键，与ALT相关的组合键通常是代码修改的辅助有关</p>
 <h2 id="其他偏好设置"><a href="#其他偏好设置" class="headerlink" title="其他偏好设置"></a>其他偏好设置</h2><ol>
-<li><p>鼠标悬浮方法显示文档(Editor -&gt; General =&gt; Show quick documentation on mouse move) ：打勾 </p>
+<li><p>鼠标悬浮方法上方显示文档(Editor -&gt; General =&gt; Show quick documentation on mouse move) ：打勾 </p>
 </li>
 <li><p>自动为Java文件添加明确的导入依赖(Editor -&gt; General -&gt; Auto Import =&gt; Add unambiguous imports on the fly)：打勾</p>
 </li>
@@ -150,7 +152,7 @@
 </li>
 <li><p>新项目默认JDK设置(File =&gt; Other Settings =&gt; Structure for New Projects… -&gt; Project Settings -&gt; Platform Settings)：点击加号添加jdk，其后 &gt;&gt;  设置版本(Project Settings -&gt; Project =&gt; Project SDK)：选择环境及默认版本级别        [已创建的项目，在File =&gt; Project Structure…设置]</p>
 </li>
-<li><p>行代码显示最后提交信息[Other Settings -&gt; Git ToolBox Global =&gt; General -&gt; Show editor inline ‘Blame’]：打勾</p>
+<li><p>行代码显示最后提交信息[Other Settings -&gt; Git ToolBox Global =&gt; General -&gt; Show editor inline ‘Blame’]：打勾（需要Git ToolBox插件）</p>
 </li>
 <li><p>方法之间显示分割线[Editor -&gt; General -&gt; Appearance =&gt; Show method separator]：打勾</p>
 </li>
@@ -171,15 +173,32 @@
 
 </li>
 </ol>
-<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>File =&gt; Settings… =&gt; Keymap页面中：输入框输入用于匹配文字，输入框右侧按钮用于匹配快捷键，修改快捷键时，点击修改项，悬浮框中可选择设置键盘快捷键触发、设置鼠标配合Ctrl等键触发、缩写触发</p>
-<h2 id="快捷键配置导入导出"><a href="#快捷键配置导入导出" class="headerlink" title="快捷键配置导入导出"></a>快捷键配置导入导出</h2><p>快捷键配置文件位置<a href="../static/Vince-Style.xml">快捷键配置</a></p>
+<h2 id="操作教程"><a href="#操作教程" class="headerlink" title="操作教程"></a>操作教程</h2><ol>
+<li><strong>修改快捷键</strong></li>
+</ol>
+<p>File =&gt; Settings… =&gt; Keymap页面中：搜索输入框用于输入匹配文字搜索，输入框右侧按钮用于输入快捷键搜索。修改快捷键时，点击修改项，悬浮框中可选择设置键盘快捷键触发、设置鼠标配合Ctrl等键触发、缩写触发</p>
+<ol start="2">
+<li><strong>导入快捷键配置文件</strong></li>
+</ol>
+<p>快捷键配置文件通常在如下位置（可以有多个文件，且配置文件名字也无明显要求）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Linux：~/.IdeaIC2019.1/config/keymaps/</span><br><span class="line">Windows：C:\Users\Administrator/.IdeaIC2019.1/config/keymaps/</span><br></pre></td></tr></table></figure>
 
+<p>配置文件（<a href="../static/Vince-Style.xml">我的配置文件</a>）复制到上述相应目录后，重新启动IDEA，在快捷键配置页面（File =&gt; Settings… =&gt; Keymap）下拉框中即会增加新导入的配置文件，选中即可使用</p>
+<ol start="3">
+<li><strong>项目太大，文件列表太长怎么办</strong></li>
+</ol>
+<p>可以尝试以下两种方法</p>
+<p>1) 配置合并多个目录层级（同一级下没有兄弟文件的文件合并到父级显示）<br><img src="../static/MB19051801-3.png" alt="MB19051801-3"><br>2) 配置显示范围组，将当前正在开发的模块文件都配置到显示组中，切换到该显示组时仅显示该组包含文件<br><img src="../static/MB19051801-4.png" alt="MB19051801-4"></p>
+<h2 id="常见问题解决"><a href="#常见问题解决" class="headerlink" title="常见问题解决"></a>常见问题解决</h2><ol>
+<li><p>新导入项目，依赖下载完毕，源码仍然报错（maven各种update、clean、compile之后仍然报错）</p>
+<p>可能是由于IDEA缓存了依赖未下载前的目录信息，执行更新即可(File =&gt; Invalidate Caches / Restart…)</p>
+</li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://page.uetty.com/2019/05/18/idea-prefer/" data-id="ck5qhi068001ag0ukvcisnc1e" class="article-share-link">Share</a>
+      <a data-url="https://page.uetty.com/2019/05/18/idea-experience/" data-id="ck6hqy6yk00014cukb3cf9t2n" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IDE/">IDE</a></li></ul>
@@ -221,7 +240,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MyBatis/">MyBatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/api/">api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/log4j/">log4j</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/open-source/">open source</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vulnerability/">vulnerability</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图论/">图论</a></li></ul>
     </div>
   </div>
 
@@ -231,7 +250,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a>
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a> <a href="/tags/图论/" style="font-size: 10px;">图论</a>
     </div>
   </div>
 
@@ -240,7 +259,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">2020-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
     </div>
   </div>
 
@@ -253,6 +272,14 @@
       <ul>
         
           <li>
+            <a href="/2020/02/23/character-set-encoding/">从二分图开始到最大匹配</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/13/character-set-encoding/">理解字符集编码及Java内存编码运行机制</a>
+          </li>
+        
+          <li>
             <a href="/2020/01/08/gitlab-api/">Gitlab Api</a>
           </li>
         
@@ -262,14 +289,6 @@
         
           <li>
             <a href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
-          </li>
-        
-          <li>
-            <a href="/2019/08/15/log4j/">log4j xml配置文件个人配置如何不污染GIT远程仓库</a>
-          </li>
-        
-          <li>
-            <a href="/2019/07/31/common-excel/">阿里Easy Excel自定义样式注解</a>
           </li>
         
       </ul>
