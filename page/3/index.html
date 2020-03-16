@@ -62,6 +62,73 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-iptables" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/30/iptables/" class="article-date">
+  <time datetime="2018-12-30T08:13:02.000Z" itemprop="datePublished">2018-12-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/30/iptables/">iptables 笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p><img src="../static/MB18123001-1.png" alt="iptables总体"></p>
+<h2 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h2><p>显示列表：<code>iptables -t filter -L -n</code>      -t参数指定显示哪个链，默认filter链，加-v显示更详细信息，可看到哪张网卡流入流出 </p>
+<p>清空设置：<code>iptables -F</code> </p>
+<p>阻止特定源ip（111.111.11.11）对目的ip（10.18.139.82）的8080端口访问：<code>iptables -I DOCKER -s 111.111.11.11 -d 10.18.139.82 -p TCP --dport 8080 -j DROP</code>  </p>
+<p>添加一条开放端口的规则： <code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code>  -A表示添加规则 </p>
+<p>替换一条规则为开放220端口：<code>iptables -R INPUT 1 -p tcp --dport 220 -j ACCEPT</code> -R表示替换规则，<code>INPUT 1</code>表示INPUT链路的第1条规则，规则行号用<code>iptables -L -n --line-number</code>命令查看 </p>
+<p>插入一条规则：<code>iptables -I INPUT 3 -p tcp --dport 220 -j ACCEPT</code>  -I表示插入规则</p>
+<p>添加一条禁止端口的规则： <code>iptables -A INPUT -p tcp --dport 8080 -j DROP</code> </p>
+<p>删除一条规则：先使用 <code>iptables -L -n --line-number</code> 查看number，之后使用<code>iptables -D INPUT 3</code> 删除number号对应的规则 </p>
+<p>通常设置只通过部分端口的规则需要设置允许换回链路，以及允许主动访问外网时外网的响应流量流入：<code>iptables -A INPUT -i lo -j ACCEPT</code>、<code>iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT</code>，第一条为环回链路，第二条为以连接或程序启动的向外端口允许流入</p>
+<p>设置环回链路规则时，通过<code>iptable -L -n</code>命令看到不到详细信息会误以为通过了全部端口，使用<code>iptables -L -n -v</code>命令看详细信息，才可看到实际规则</p>
+<p>一个规则里设置多个端口：<code>iptables -A INPUT -p tcp -m multiport --destination-ports 22,3306,443,80 -j ACCEPT</code></p>
+<p>命令里设置iptables规则，重启后将失效，通过<code>iptables-save &gt; /root/iptables.conf</code>保存配置到文件里，重启后使用<code>iptables-restore &lt; /root/iptables.conf</code>恢复配置。如果service iptables可以使用，则可以直接用<code>service iptables save</code>保存 </p>
+<h2 id="ip黑名单"><a href="#ip黑名单" class="headerlink" title="ip黑名单"></a>ip黑名单</h2><p>结合使用ipset软件设置ip黑名单</p>
+<p>安装软件：<code>apt-get install ipset</code></p>
+<p>创建名单：<code>ipset create blacklist hash:net</code>    最后的参数还可以是：<code>hash:ip</code>、<code>hash:ip,port</code>等，名单是以hash方式存储的，所以不会怎么影响性能，hash size默认能存储1024个</p>
+<p>创建自动过期的名单：<code>ipset create timoutlist hash:ip timeout 300</code>    300秒后自动过期</p>
+<p>添加ip：<code>ipset add blacklist 1.1.1.1</code></p>
+<p>添加ip地址段：<code>ipset add blacklist 1.1.1.0/24</code> 前24byte的地址匹配</p>
+<p>如果集合是ip,port的形式：<code>ipset add blacklist 1.1.1.1,80</code> 添加1.1.1.1的ip的80端口</p>
+<p>查看列表：<code>ipset list</code></p>
+<p>查看集合内内容：<code>ipset list blacklist</code></p>
+<p>清空所有集合：<code>ipset flush</code></p>
+<p>清空单个集合：<code>ipset flush blacklist</code></p>
+<p>从集合删除内容：<code>ipset del blacklist x.x.x.x</code></p>
+<p>销毁集合：<code>ipset destroy blacklist</code></p>
+<p>使用ipset名单：<code>iptables -A INPUT -m set --match-set blacklist src -p tcp -j DROP</code></p>
+<p>如果是设置不匹配名单添加<code>!</code>符合即可：<code>iptables -A INPUT -m set ! --match-set blacklist src -p tcp -j DROP</code></p>
+<p>保存与恢复：通过<code>ipset save &gt; /root/ipset.conf</code>保存配置到文件里，重使用<code>ipset restore &lt; /root/ipset.conf</code>恢复配置</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://page.uetty.com/2018/12/30/iptables/" data-id="ck5qhi061000yg0ukhptqpntl" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-mysql-slave" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/12/30/mysql-slave/" class="article-date">
@@ -642,50 +709,6 @@
 
 
   
-    <article id="post-spring-autowire-resolver" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/02/25/spring-autowire-resolver/" class="article-date">
-  <time datetime="2018-02-25T07:20:10.000Z" itemprop="datePublished">2018-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/25/spring-autowire-resolver/">SpringMVC自定义配置自动注入对象</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ol>
-<li>继承org.springframework.web.method.support.HandlerMethodArgumentResolver的类test.UserArgumentResolver</li>
-<li>配置文件配置参数</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;mvc:annotation-driven&gt;</span><br><span class="line">    &lt;mvc:argument-resolvers&gt;</span><br><span class="line">    	&lt;bean class=&quot;com.xxx.UserArgumentResolver&quot;/&gt;</span><br><span class="line">    &lt;/mvc:argument-resolvers&gt;</span><br><span class="line">&lt;/mvc:annotation-driven&gt;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://page.uetty.com/2018/02/25/spring-autowire-resolver/" data-id="ck5qhi05n000jg0ukkviu78r0" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -714,7 +737,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 18px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 16px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a> <a href="/tags/图论/" style="font-size: 10px;">图论</a>
+      <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/MyBatis/" style="font-size: 10px;">MyBatis</a> <a href="/tags/RabbitMQ/" style="font-size: 10px;">RabbitMQ</a> <a href="/tags/api/" style="font-size: 12.5px;">api</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/linux/" style="font-size: 17.5px;">linux</a> <a href="/tags/log4j/" style="font-size: 10px;">log4j</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/open-source/" style="font-size: 10px;">open source</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/spring/" style="font-size: 15px;">spring</a> <a href="/tags/vulnerability/" style="font-size: 10px;">vulnerability</a> <a href="/tags/图论/" style="font-size: 10px;">图论</a>
     </div>
   </div>
 
@@ -723,7 +746,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">2020-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">2020-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">2020-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">2020-01</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">2019-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">2019-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">2019-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">2019-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">2019-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">2019-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">2019-04</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">2019-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">2019-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">2018-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">2018-11</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">2018-10</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">2018-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">2018-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018-06</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018-03</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">2018-02</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">2017-12</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">2017-09</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">2017-08</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">2017-07</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">2017-05</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">2017-03</a></li></ul>
     </div>
   </div>
 
@@ -736,7 +759,11 @@
       <ul>
         
           <li>
-            <a href="/2020/02/23/character-set-encoding/">从二分图开始到最大匹配</a>
+            <a href="/2020/03/15/innodb-struct/">了解InnoDB体系架构</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/23/bipartite-graph/">从二分图开始到最大匹配</a>
           </li>
         
           <li>
@@ -749,10 +776,6 @@
         
           <li>
             <a href="/2019/12/11/source-bitcount/">JDK中Integer.bitCount解析</a>
-          </li>
-        
-          <li>
-            <a href="/2019/11/25/linux-cgroup-cpu/">Linux限制进程CPU上限</a>
           </li>
         
       </ul>
