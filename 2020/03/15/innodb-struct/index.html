@@ -7,13 +7,13 @@
   
   <title>了解InnoDB体系架构 | Vince Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery pool）。">
+  <meta name="description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 （一）内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery poo">
 <meta name="keywords" content="innodb, buffer">
 <meta property="og:type" content="article">
 <meta property="og:title" content="了解InnoDB体系架构">
 <meta property="og:url" content="https://page.uetty.com/2020/03/15/innodb-struct/index.html">
 <meta property="og:site_name" content="Vince Blog">
-<meta property="og:description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery pool）。">
+<meta property="og:description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 （一）内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery poo">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-1.png">
 <meta property="og:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-2.png">
@@ -21,10 +21,10 @@
 <meta property="og:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-4.png">
 <meta property="og:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-5.png">
 <meta property="og:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-6.png">
-<meta property="og:updated_time" content="2020-03-16T16:17:39.266Z">
+<meta property="og:updated_time" content="2020-03-17T09:18:34.459Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="了解InnoDB体系架构">
-<meta name="twitter:description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery pool）。">
+<meta name="twitter:description" content="InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：  接下来会针对后台线程和内存池展开介绍。 （一）内存池内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery poo">
 <meta name="twitter:image" content="https://page.uetty.com/2020/03/15/static/MB20031501-1.png">
   
     <link rel="alternate" href="/atom.xml" title="Vince Blog" type="application/atom+xml">
@@ -97,10 +97,10 @@
         <p>InnoDB存储引擎具有行锁设计、支持事务、支持外键、支持MVCC、支持插入缓冲、支持自适应哈希索引等特点，其整体体系架构主要由后台线程、内存池、文件系统三部分组成，如下图所示：</p>
 <p><img src="../static/MB20031501-1.png" alt="图1"></p>
 <p>接下来会针对后台线程和内存池展开介绍。</p>
-<h2 id="内存池"><a href="#内存池" class="headerlink" title="内存池"></a>内存池</h2><p>内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery pool）。缓冲池中缓存的数据页类型有：数据页（data page），索引页（index page）、插入缓冲（insert buffer）、锁信息（lock info）、自适应哈希索引（adaptive hash index）、数据字典（data dictionary）、undo页等。缓冲池从1.0.X版本开始，允许有多个实例，根据哈希值将每个页平均分配到不同的实例中。</p>
+<h2 id="（一）内存池"><a href="#（一）内存池" class="headerlink" title="（一）内存池"></a>（一）内存池</h2><p>内存池从大的方面可以分为三块：重做日志缓冲（redo log buffer）、缓冲池（buffer pool）、额外内存池（additional memery pool）。缓冲池中缓存的数据页类型有：数据页（data page），索引页（index page）、插入缓冲（insert buffer）、锁信息（lock info）、自适应哈希索引（adaptive hash index）、数据字典（data dictionary）、undo页等。缓冲池从1.0.X版本开始，允许有多个实例，根据哈希值将每个页平均分配到不同的实例中。</p>
 <p><img src="../static/MB20031501-2.png" alt="图2"></p>
-<h3 id="1-缓冲池"><a href="#1-缓冲池" class="headerlink" title="1. 缓冲池"></a>1. 缓冲池</h3><p>Innodb是基于磁盘存储的数据库，CPU速度和磁盘速度之间存在巨大的鸿沟，磁盘速度较慢严重降低了数据库系统的性能。基于这个问题，数据库在内存中开辟了一块区域作为缓冲池来弥补两者之间的速度差距。在数据库中读取页时，首先将从磁盘读到的页放在缓冲池中，下次再读相同的页时，首先判断该页是否在缓冲池中，若命中则直接读取该页，否则从磁盘上读取。</p>
-<h4 id="LRU列表"><a href="#LRU列表" class="headerlink" title="LRU列表"></a>LRU列表</h4><p>缓冲池通过LRU（Latest Recent Used，最近使用）算法来进行管理页（数据页、索引页），最频繁使用的排在<code>LRU列表</code>前端，反之，排在末端。当缓冲池不能存放新读取到的页时，首先释放<code>LRU列表</code>末端的页。</p>
+<h3 id="（Ⅰ）缓冲池"><a href="#（Ⅰ）缓冲池" class="headerlink" title="（Ⅰ）缓冲池"></a>（Ⅰ）缓冲池</h3><p>Innodb是基于磁盘存储的数据库，CPU速度和磁盘速度之间存在巨大的鸿沟，磁盘速度较慢严重降低了数据库系统的性能。基于这个问题，数据库在内存中开辟了一块区域作为缓冲池来弥补两者之间的速度差距。在数据库中读取页时，首先将从磁盘读到的页放在缓冲池中，下次再读相同的页时，首先判断该页是否在缓冲池中，若命中则直接读取该页，否则从磁盘上读取。</p>
+<h4 id="①-LRU列表"><a href="#①-LRU列表" class="headerlink" title="① LRU列表"></a>① LRU列表</h4><p>缓冲池通过LRU（Latest Recent Used，最近使用）算法来进行管理页（数据页、索引页），最频繁使用的排在<code>LRU列表</code>前端，反之，排在末端。当缓冲池不能存放新读取到的页时，首先释放<code>LRU列表</code>末端的页。</p>
 <p>Innodb在LRU算法上做了一些调整。一些的一次性读取大量页的SQL操作会将缓冲池中的页大量刷出，从而影响缓冲池的效率（页缓冲池缓存频繁使用页的初衷不符）。为了解决这个问题，Innodb在LRU算法上引入了midpoint概念，midpoint点将<code>LRU列表</code>一分为二，<code>LRU列表</code>前端至midpoint点为<code>new列表</code>，midpoint点至<code>LRU列表</code>末端为<code>old列表</code>。<code>new列表</code>和<code>old列表</code>各自都以LRU算法管理，新读取的页被加入<code>old列表</code>，只有在<code>old列表</code>中存活一定时间(<code>innodb_old_blocks_time</code>)以后才会被加入<code>new列表</code>，可以看出<code>new列表</code>中的页都是最为活跃的热点数据。midpoint默认值是37%，即默认<code>old列表</code>占完整LRU列表的37%，由参数<code>innodb_old_blocks_pct</code>控制。</p>
 <p><img src="../static/MB20031501-3.png" alt="图3"></p>
 <p><code>LRU列表</code>中存储的页数上限是确定的，Innodb引入了<code>Free列表</code>来与<code>LRU列表</code>共同管理，未分配的页由<code>Free列表</code>进行管理，<code>Free列表</code>当前页数加<code>LRU列表</code>当前页数等于<code>LRU列表</code>可容纳的总页数。新读取页时，首先从<code>Free列表</code>中查找是否有空闲页，若有则将空闲页从<code>Free列表</code>移到<code>LRU列表</code>中，否则根据规则淘汰<code>LRU列表</code>末尾的页。</p>
@@ -110,8 +110,8 @@
 <li>检查8KB的<code>unzip_LRU列表</code>，若有空闲页，将页分成2个4KB页，存放到4KB的<code>unzip_LRU列表</code></li>
 <li>从<code>LRU列表</code>申请一个16KB的页，将页分成1个8KB的页和2个4KB的页，分别存放到对应的<code>unzip_LRU列表</code>中</li>
 </ol>
-<h4 id="脏页"><a href="#脏页" class="headerlink" title="脏页"></a>脏页</h4><p><code>LRU列表</code>中的页被修改后，该页称为脏页（dirty page），脏页既存在于<code>LRU列表</code>中又存在于<code>Flush列表</code>中，会通过<code>CheckPoint机制</code>被刷新会磁盘。</p>
-<h4 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h4><p><strong>插入缓冲主要是针对，插入操作时在非唯一的非聚集索引上进行离散插入会导致性能下降，这个问题设计的</strong>。对于聚集索引，与数据的物理存储顺序是一致的，不用担心性能问题，但对于B+树结构下的非聚集索引这是需要考虑的问题。</p>
+<h4 id="②-脏页"><a href="#②-脏页" class="headerlink" title="② 脏页"></a>② 脏页</h4><p><code>LRU列表</code>中的页被修改后，该页称为脏页（dirty page），脏页既存在于<code>LRU列表</code>中又存在于<code>Flush列表</code>中，会通过<code>CheckPoint机制</code>被刷新会磁盘。</p>
+<h4 id="③-插入缓冲"><a href="#③-插入缓冲" class="headerlink" title="③ 插入缓冲"></a>③ 插入缓冲</h4><p><strong>插入缓冲主要是针对，插入操作时在非唯一的非聚集索引上进行离散插入会导致性能下降，这个问题设计的</strong>。对于聚集索引，与数据的物理存储顺序是一致的，不用担心性能问题，但对于B+树结构下的非聚集索引这是需要考虑的问题。</p>
 <p>这里需要注意的两点是：</p>
 <ol>
 <li>插入缓冲针对的是非聚集索引，不要因为名字就认为针对的是数据页</li>
@@ -182,14 +182,14 @@
 <blockquote>
 <p>注：总结有以下几个没弄明白的点：<br>1.在硬盘上，辅助索引是如何划分页的，如何存储，随着数据的随机新增页的划分不会发生大范围的变化吗<br>2.Insert Buffer B+树叶子节点中的记录具体结构什么样（是单个索引记录还是整页记录）<br>3.Insert Buffer Bitmap在Insert Buffer B+树上吗，如何存在，它追踪16384个页数量的原因</p>
 </blockquote>
-<h4 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h4><p>Change Buffer是InnoDB从1.0.X版本起引入的，可视为Insert Buffer的升级，可以对DML操作——INSERT、DELETE、UPDATE——都进行缓冲，分别是：Insert Buffer、Delete Buffer、Purge Buffer。</p>
+<h4 id="④-Change-Buffer"><a href="#④-Change-Buffer" class="headerlink" title="④ Change Buffer"></a>④ Change Buffer</h4><p>Change Buffer是InnoDB从1.0.X版本起引入的，可视为Insert Buffer的升级，可以对DML操作——INSERT、DELETE、UPDATE——都进行缓冲，分别是：Insert Buffer、Delete Buffer、Purge Buffer。</p>
 <p>Update操作分为两个步骤：</p>
 <ol>
 <li>将记录标记为已删除——对应Delete Buffer</li>
 <li>真正将记录删除——对应Purge Buffer</li>
 </ol>
-<h4 id="UNDO页"><a href="#UNDO页" class="headerlink" title="UNDO页"></a>UNDO页</h4><p>为了满足事务的原子性，在操作任何数据之前，首先将数据备份到一个地方（这个存储备份的地方称为Undo Log），然后进行数据的修改，这样在rollback时，可以利用Undo Log中备份的undo页将数据恢复到事务开始之前的状态。</p>
-<h4 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h4><p>InnoDB存储引擎会监控对表上各索引页的查询。如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引（Adaptive Hash Index, AHI）。AHI是通过缓冲池的B+数页构造而来的，因此建立速度很快，而且不需要对整张表构建哈希索引。InnoDB存储引擎会自动根据访问的频率和模式来自动地为某些热点页建立哈希索引。</p>
+<h4 id="⑤-UNDO页"><a href="#⑤-UNDO页" class="headerlink" title="⑤ UNDO页"></a>⑤ UNDO页</h4><p>为了满足事务的原子性，在操作任何数据之前，首先将数据备份到一个地方（这个存储备份的地方称为Undo Log），然后进行数据的修改，这样在rollback时，可以利用Undo Log中备份的undo页将数据恢复到事务开始之前的状态。</p>
+<h4 id="⑥-自适应哈希索引"><a href="#⑥-自适应哈希索引" class="headerlink" title="⑥ 自适应哈希索引"></a>⑥ 自适应哈希索引</h4><p>InnoDB存储引擎会监控对表上各索引页的查询。如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引（Adaptive Hash Index, AHI）。AHI是通过缓冲池的B+数页构造而来的，因此建立速度很快，而且不需要对整张表构建哈希索引。InnoDB存储引擎会自动根据访问的频率和模式来自动地为某些热点页建立哈希索引。</p>
 <p>AHI有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a，b）这样的联合索引，其访问模式可以是以下情况：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WHERE a=xxx</span><br><span class="line">WHERE a=xxx AND b=xxxx</span><br></pre></td></tr></table></figure>
 
@@ -200,7 +200,7 @@
 </ol>
 <p>正如一般所知的哈希索引，自适应哈希索引也只能进行等值查询，范围查询是不能使用哈希索引的。</p>
 <p>默认自适应哈希索引是开启的，可以通过<code>innodb_adaptive_hash_index</code>来配置禁用或启动此特性。</p>
-<h3 id="2-重做日志缓冲"><a href="#2-重做日志缓冲" class="headerlink" title="2. 重做日志缓冲"></a>2. 重做日志缓冲</h3><p>重做日志是InnoDB引擎对其本身事务操作的日志记录，记录了关于每个页的更改的物理情况。重做日志的存在能够避免宕机造成数据的丢失。</p>
+<h3 id="（Ⅱ）重做日志缓冲"><a href="#（Ⅱ）重做日志缓冲" class="headerlink" title="（Ⅱ）重做日志缓冲"></a>（Ⅱ）重做日志缓冲</h3><p>重做日志是InnoDB引擎对其本身事务操作的日志记录，记录了关于每个页的更改的物理情况。重做日志的存在能够避免宕机造成数据的丢失。</p>
 <p>在InnoDB中，为了协调CPU与磁盘速度的鸿沟，页的操作首先都是在缓冲池中完成的。重做日志也一样，InnoDB引擎首先将重做日志信息放入到内存中（即重做日志缓冲），然后按一定频率将其刷新到重做日志文件。重做日志缓冲一般不需要设置太大，因为一般情况下每一秒中会将其刷新到重做日志文件，因此只需要保证每秒产生的事务量在这个缓冲大小之内即可（可通过<code>innodb_log_buffer_size</code>控制其大小，默认8MB）。重做日志文件会在三种情况下刷新到重做日志文件：</p>
 <ol>
 <li>主线程每秒刷新一次</li>
@@ -213,8 +213,8 @@
 <blockquote>
 <p>注意：重做日志文件的主要作用不是避免宕机造成的数据丢失，而是避免因宕机造成的数据文件的不完整。数据恢复只是不可靠的顺带的功能。BinLog文件才是真正为避免数据丢失而生的。</p>
 </blockquote>
-<h3 id="3-额外内存池"><a href="#3-额外内存池" class="headerlink" title="3. 额外内存池"></a>3. 额外内存池</h3><p>在InnoDB存储引擎中，对内存的管理是通过内存堆的方式进行的。在对数据结构本身的内存进行分配时，需要从额外的内存池中进行申请，当该区域的内存不足时，会从缓冲池中申请。例如，分配了缓冲池，但是每个缓冲池中的帧缓冲还有对应的缓冲控制对象（Buffer Control Block），这些对象记录了一些注入LRU、锁、等待等信息，而这个对象的内存需要从额外内存池中申请。因此，当申请了很大的InnoDB缓冲池时，也应考虑相应地增加这个值。</p>
-<h2 id="其他技术与特性"><a href="#其他技术与特性" class="headerlink" title="其他技术与特性"></a>其他技术与特性</h2><h3 id="1-CHECKPOINT技术"><a href="#1-CHECKPOINT技术" class="headerlink" title="1. CHECKPOINT技术"></a>1. CHECKPOINT技术</h3><p>CheckPoint（检查点）技术与前面说过的重做日志有密切地关系。重做日志是用于防止因宕机导致数据文件损坏，更改记录被刷新到硬盘后，这部分的日志便已经不再需要了，可以被覆盖。因此重做日志文件被设计成可以循环使用的，一般重做日志文件有两个（也可以设置成超过两个文件），循环使用这两个文件。</p>
+<h3 id="（Ⅲ）额外内存池"><a href="#（Ⅲ）额外内存池" class="headerlink" title="（Ⅲ）额外内存池"></a>（Ⅲ）额外内存池</h3><p>在InnoDB存储引擎中，对内存的管理是通过内存堆的方式进行的。在对数据结构本身的内存进行分配时，需要从额外的内存池中进行申请，当该区域的内存不足时，会从缓冲池中申请。例如，分配了缓冲池，但是每个缓冲池中的帧缓冲还有对应的缓冲控制对象（Buffer Control Block），这些对象记录了一些注入LRU、锁、等待等信息，而这个对象的内存需要从额外内存池中申请。因此，当申请了很大的InnoDB缓冲池时，也应考虑相应地增加这个值。</p>
+<h2 id="（二）其他技术与特性"><a href="#（二）其他技术与特性" class="headerlink" title="（二）其他技术与特性"></a>（二）其他技术与特性</h2><h3 id="（Ⅰ）CHECKPOINT技术"><a href="#（Ⅰ）CHECKPOINT技术" class="headerlink" title="（Ⅰ）CHECKPOINT技术"></a>（Ⅰ）CHECKPOINT技术</h3><p>CheckPoint（检查点）技术与前面说过的重做日志有密切地关系。重做日志是用于防止因宕机导致数据文件损坏，更改记录被刷新到硬盘后，这部分的日志便已经不再需要了，可以被覆盖。因此重做日志文件被设计成可以循环使用的，一般重做日志文件有两个（也可以设置成超过两个文件），循环使用这两个文件。</p>
 <p>要能使用重做日志来恢复数据，必须知道哪些版本数据已经刷入硬盘，哪些版本未刷入硬盘。基于此，就有了检查点（CheckPoint）技术。对于InnnoDB存储引擎而言，其是通过LSN（Log Sequence Number）来标记版本的，LSN是8字节地数字，其单位是字节。每个页有LSN，重做日志中也有LSN，CheckPoint也有LSN，CheckPoint前的数据都已经被刷入硬盘，通过比对CheckPoint的LSN和重做日志中的LSN便能知道哪些版本数据未刷入硬盘。</p>
 <p>在InnoDB中，CheckPoint发生的时间、条件、脏页的选择、刷新脏页的数量都非常复杂。CheckPoint的发生主要有以下几种：</p>
 <ol>
@@ -224,25 +224,25 @@
 <li>当重做日志文件达到<code>75% * total_redo_log_file_size</code>时（<code>total_redo_log_file_size</code>是所有重做日志文件的总大小），会执行阻塞发现问题的用户查询线程执行Async Flush CheckPoint；当重做日志文件达到<code>90% * total_redo_log_file_size</code>时，会阻塞所有用户查询线程执行Sync Flush CheckPoint。从InnoDB1.2.X开始，在Cleaner线程执行，不会阻塞用户查询线程</li>
 <li>当缓冲池中脏页数量达到<code>innodb_max_dirty_page_pct</code>（默认75%）时，强制执行CheckPoint</li>
 </ol>
-<h3 id="2-刷新临接页"><a href="#2-刷新临接页" class="headerlink" title="2. 刷新临接页"></a>2. 刷新临接页</h3><p>InnoDB还存在了刷新临接页的特性：当刷新一个脏页时，InnoDB存储引擎会检测该页所在区的所有页，如果是脏页，那么一起刷新。可以由参数<code>innodb_flush_neighbors</code>来配置启用或关闭此特性（值0表示关闭）。</p>
-<h3 id="3-异步IO"><a href="#3-异步IO" class="headerlink" title="3. 异步IO"></a>3. 异步IO</h3><p>InnoDB采用异步IO（Asynchronous IO, AIO）的方式来处理磁盘操作，AIO的一个优势是可以对多个索引页进行并发扫描，另一个优势是可以进行IO Merge操作，将多个IO合并为一个IO，例如用户需要访问的页（space, page_no）为（8，6)、（8，7）、（8，8），每个页大小16KB，AIO会判断这三个页是连续的，AIO底层会发送一个IO请求，读取48KB的页。</p>
+<h3 id="（Ⅱ）刷新临接页"><a href="#（Ⅱ）刷新临接页" class="headerlink" title="（Ⅱ）刷新临接页"></a>（Ⅱ）刷新临接页</h3><p>InnoDB还存在了刷新临接页的特性：当刷新一个脏页时，InnoDB存储引擎会检测该页所在区的所有页，如果是脏页，那么一起刷新。可以由参数<code>innodb_flush_neighbors</code>来配置启用或关闭此特性（值0表示关闭）。</p>
+<h3 id="（Ⅲ）异步IO"><a href="#（Ⅲ）异步IO" class="headerlink" title="（Ⅲ）异步IO"></a>（Ⅲ）异步IO</h3><p>InnoDB采用异步IO（Asynchronous IO, AIO）的方式来处理磁盘操作，AIO的一个优势是可以对多个索引页进行并发扫描，另一个优势是可以进行IO Merge操作，将多个IO合并为一个IO，例如用户需要访问的页（space, page_no）为（8，6)、（8，7）、（8，8），每个页大小16KB，AIO会判断这三个页是连续的，AIO底层会发送一个IO请求，读取48KB的页。</p>
 <p>在InnoDB1.1.X之前，AIO实现是通过InnoDB引擎代码模拟实现，从InnoDB1.1.X开始，提供了内核级别的AIO支持，称为Native AIO，因此编译或允许该版本MySQL时需要libaio库的支持。Native AIO需要操作系统提供支持，Windows系统和Linux系统都提供Native AIO支持，而Mac OSX系统则未提供，只能依旧使用原模拟的方式。</p>
 <p>可以通过参数<code>innodb_use_native_aio</code>来控制启用Native AIO，Linux系统下默认启用（ON）。</p>
-<h3 id="4-两次写"><a href="#4-两次写" class="headerlink" title="4. 两次写"></a>4. 两次写</h3><p>当数据库宕机时，可能InnoDB正在写入某个页到表中，而这个页只写了一部分，比如16KB的页，只写了前4KB，之后就发生了宕机，这种情况被称为部分写失效。有经验的DBA也许会想如果发生写失效，可以通过重做日志进行恢复。但实际上并不一定可以修复，页内数据有可能本身发生损坏（这与重做日志记录的内容有关，参考<a href="https://blog.csdn.net/jolly10/article/details/79791574" target="_blank" rel="noopener">mysql 为何需要Double Write？有redo log还不够吗？</a>，估计是因为重做日志在页内的记录与最终写入磁盘的并不是完全相同的，还会经过一次与底层结构相关的计算），需要先通过页的副本来还原页，再进行重做，这个副本就就是doublewrite的内容。</p>
+<h3 id="（Ⅳ）两次写"><a href="#（Ⅳ）两次写" class="headerlink" title="（Ⅳ）两次写"></a>（Ⅳ）两次写</h3><p>当数据库宕机时，可能InnoDB正在写入某个页到表中，而这个页只写了一部分，比如16KB的页，只写了前4KB，之后就发生了宕机，这种情况被称为部分写失效。有经验的DBA也许会想如果发生写失效，可以通过重做日志进行恢复。但实际上并不一定可以修复，页内数据有可能本身发生损坏（这与重做日志记录的内容有关，参考<a href="https://blog.csdn.net/jolly10/article/details/79791574" target="_blank" rel="noopener">mysql 为何需要Double Write？有redo log还不够吗？</a>，估计是因为重做日志在页内的记录与最终写入磁盘的并不是完全相同的，还会经过一次与底层结构相关的计算），需要先通过页的副本来还原页，再进行重做，这个副本就就是doublewrite的内容。</p>
 <p>doublewrite由两部分组成，一部分是内存中的doublewrite buffer，大小为2MB，另一部分是物理磁盘上共享表空间中的连续的2个区（128个页，也是2MB）。在对缓冲区进行刷新时，并不直接写磁盘，而是会通过memcpy函数将页先复制到内存中的doublewrite buffer，之后通过doublewrite  buffer再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调用fsync函数，同步磁盘，避免缓冲带来的问题。由于doublewrite页是连续的，因此这个过程是顺序写的，开销并不是很大。在完成doublewrite页写入后，再将doublewrie buffer中的页写入各个表空间文件中，此时写入是离散的。</p>
 <p>参数<code>skip_innodb_doublewrite</code>可以禁止使用doublewrite功能，有些情况下，这是需要的，如：用户有多个从服务器（在从服务器上做的是RAID0），可以在从服务器上关闭doublewrite功能；有些文件系统（ZFS文件系统）本身提供了部分写失效的防范机制，就不用开启doublewrite功能。</p>
-<p><img src="../static/MB20031501-6.png" alt="图1"></p>
-<h2 id="后台线程"><a href="#后台线程" class="headerlink" title="后台线程"></a>后台线程</h2><h3 id="1-Master线程"><a href="#1-Master线程" class="headerlink" title="1. Master线程"></a>1. Master线程</h3><p>负责将重做日志缓冲刷新到重做日志文件</p>
-<h3 id="2-IO线程"><a href="#2-IO线程" class="headerlink" title="2. IO线程"></a>2. IO线程</h3><p>Async IO，分为4种线程</p>
+<p><img src="../static/MB20031501-6.png" alt="图6"></p>
+<h2 id="（三）后台线程"><a href="#（三）后台线程" class="headerlink" title="（三）后台线程"></a>（三）后台线程</h2><h3 id="（Ⅰ）Master线程"><a href="#（Ⅰ）Master线程" class="headerlink" title="（Ⅰ）Master线程"></a>（Ⅰ）Master线程</h3><p>负责将重做日志缓冲刷新到重做日志文件</p>
+<h3 id="（Ⅱ）IO线程"><a href="#（Ⅱ）IO线程" class="headerlink" title="（Ⅱ）IO线程"></a>（Ⅱ）IO线程</h3><p>Async IO，分为4种线程</p>
 <ol>
 <li>Read线程（默认4条线程，由<code>innodb_read_io_thread</code>参数控制）</li>
 <li>Write线程（默认4条线程，由<code>innodb_write_io_thread</code>参数控制）</li>
 <li>Insert Buffer线程（1条线程）</li>
 <li>Log线程（1条线程）</li>
 </ol>
-<h3 id="3-Purge线程"><a href="#3-Purge线程" class="headerlink" title="3. Purge线程"></a>3. Purge线程</h3><p>支持设置多个线程，由<code>innodb_purge_threads</code>控制</p>
+<h3 id="（Ⅲ）Purge线程"><a href="#（Ⅲ）Purge线程" class="headerlink" title="（Ⅲ）Purge线程"></a>（Ⅲ）Purge线程</h3><p>支持设置多个线程，由<code>innodb_purge_threads</code>控制</p>
 <p>负责任务UNDO页回收，<code>innodb_purge_batch_size</code>控制每次回收数量</p>
-<h3 id="4-Cleaner线程"><a href="#4-Cleaner线程" class="headerlink" title="4. Cleaner线程"></a>4. Cleaner线程</h3><p>负责将缓冲池中的脏页刷新到磁盘</p>
+<h3 id="（Ⅳ）Cleaner线程"><a href="#（Ⅳ）Cleaner线程" class="headerlink" title="（Ⅳ）Cleaner线程"></a>（Ⅳ）Cleaner线程</h3><p>负责将缓冲池中的脏页刷新到磁盘</p>
 
       
     </div>
